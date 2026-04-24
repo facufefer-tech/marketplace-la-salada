@@ -20,7 +20,7 @@ export default function FerianteProfilePage({ params }: Props) {
           <Image src={feriante.avatarUrl} alt={feriante.owner} width={84} height={84} className="rounded-full border-2 border-white/30" />
           <div>
             <p className="text-3xl font-black text-white">{feriante.nombre}</p>
-            <p className="text-sm text-zinc-200">Feriante: {feriante.owner} · ⭐ {feriante.rating.toFixed(1)} · {feriante.ventasMes} ventas/mes</p>
+            <p className="text-sm text-zinc-200">Marca: {feriante.nombre} · Responsable: {feriante.owner} · ⭐ {feriante.rating.toFixed(1)} · {feriante.ventasMes} ventas/mes</p>
             <p className="text-sm text-zinc-300">{feriante.descripcion}</p>
           </div>
         </div>
@@ -35,7 +35,7 @@ export default function FerianteProfilePage({ params }: Props) {
           <a href="/templates/productos-general.csv" download className="rounded-lg bg-orange-500 px-3 py-2 text-xs font-black text-white">
             Descargar plantilla productos
           </a>
-          <a href="/templates/tutorial-carga-productos.md" download className="rounded-lg border border-zinc-600 px-3 py-2 text-xs font-black text-zinc-200">
+          <a href="/templates/tutorial-carga-productos.pdf" download className="rounded-lg border border-zinc-600 px-3 py-2 text-xs font-black text-zinc-200">
             Descargar tutorial paso a paso
           </a>
           <Link href="/dashboard/productos" className="rounded-lg border border-zinc-600 px-3 py-2 text-xs font-black text-zinc-200">

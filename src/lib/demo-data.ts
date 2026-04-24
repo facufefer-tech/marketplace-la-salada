@@ -60,6 +60,18 @@ const marcas = [
   "Glam Night Label", "SportPeak", "BaseLab", "WOW Bags", "Invierno Norte",
   "Summer Loop", "Denim Republic", "Exec Femme", "Kings Dept", "Outlet Flash",
 ];
+const photos = [
+  "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
+];
 
 export const demoProducts: DemoProduct[] = names.map((n, i) => {
   const store = demoStores[i % demoStores.length];
@@ -71,13 +83,13 @@ export const demoProducts: DemoProduct[] = names.map((n, i) => {
     tienda_id: store.id,
     nombre: n,
     marca: marcas[i % marcas.length],
-    descripcion: `${n} ideal para uso diario con excelente relación precio-calidad.`,
+    descripcion: `${n} confeccionada en tela premium, calce real argentino y terminaciones reforzadas. Ideal para venta mayorista/minorista con rotación alta.`,
     precio: price,
     categoria: cats[i % cats.length],
     talle: talles[i % talles.length],
     color: colores[i % colores.length],
     stock: 5 + (i % 25),
-    fotos: [`https://picsum.photos/400/500?random=${i + 1}`],
+    fotos: [photos[i % photos.length]],
     activo: true,
     destacado: i % 7 === 0,
     created_at: new Date(Date.now() - i * 3600 * 1000).toISOString(),

@@ -6,7 +6,8 @@ const templates = [
   { href: "/templates/productos-general.csv", label: "Plantilla general CSV" },
   { href: "/templates/productos-remeras.csv", label: "Plantilla remeras CSV" },
   { href: "/templates/productos-calzado.csv", label: "Plantilla calzado CSV" },
-  { href: "/templates/tutorial-carga-productos.md", label: "Tutorial de carga (Markdown)" },
+  { href: "/templates/tutorial-carga-productos.pdf", label: "Tutorial de carga (PDF)" },
+  { href: "/templates/tutorial-feriante-inicio-rapido.pdf", label: "Inicio rápido feriante (PDF)" },
 ];
 
 export default function FeriantesPage() {
@@ -27,7 +28,7 @@ export default function FeriantesPage() {
       </header>
 
       <section>
-        <h2 className="mb-4 text-3xl font-black text-white">15 feriantes ficticios (demo vinculada)</h2>
+        <h2 className="mb-4 text-3xl font-black text-white">15 marcas ficticias (demo vinculada)</h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {demoStores.map((store) => {
             const prods = demoProducts.filter((p) => p.tienda_id === store.id);
@@ -41,7 +42,7 @@ export default function FeriantesPage() {
                     </div>
                     <div>
                       <p className="font-black text-white">{store.nombre}</p>
-                      <p className="text-xs text-zinc-400">Feriante: {store.owner} · ⭐ {store.rating.toFixed(1)}</p>
+                      <p className="text-xs text-zinc-400">Marca: {store.nombre} · ⭐ {store.rating.toFixed(1)}</p>
                     </div>
                   </div>
                   <p className="text-sm text-zinc-300">{store.descripcion}</p>
