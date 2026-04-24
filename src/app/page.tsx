@@ -1,37 +1,44 @@
-import { Suspense } from "react";
-import { ProductFilters } from "@/components/home/ProductFilters";
-import { HomeCatalog } from "@/components/home/HomeCatalog";
+import { HeroBanner } from "@/components/marketing/HeroBanner";
+import { CategoryGrid } from "@/components/marketing/CategoryGrid";
+import { CountdownTimer } from "@/components/marketing/CountdownTimer";
+import { StoreCard } from "@/components/marketing/StoreCard";
+import { ProductCard } from "@/components/storefront/ProductCard";
+import { demoProducts, demoStores } from "@/lib/demo-data";
 
 export default function HomePage() {
+  const products = demoProducts;
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
-      <section className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          Marketplace <span className="text-accent">La Salada</span>
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-400">
-          Encontrá productos de feriantes. Destacados primero, filtros por categoría, precio, talle, color y tienda.
-        </p>
-      </section>
-
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <Suspense
-          fallback={<div className="h-64 w-full animate-pulse rounded-xl bg-zinc-900 lg:w-64" />}
-        >
-          <div className="w-full shrink-0 lg:w-64">
-            <ProductFilters />
-          </div>
-        </Suspense>
-        <div className="min-w-0 flex-1">
-          <Suspense
-            fallback={<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 animate-pulse rounded-xl bg-zinc-900" />
-            ))}</div>}
-          >
-            <HomeCatalog />
-          </Suspense>
-        </div>
+    <main className="space-y-8 bg-[#FAFAFA] pb-10">
+      <div className="container-shell pt-6">
+        <HeroBanner />
       </div>
+      <div className="container-shell">
+        <CategoryGrid />
+      </div>
+      <div className="container-shell">
+        <CountdownTimer />
+      </div>
+      <section className="container-shell">
+        <div className="mb-4 flex items-end justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-red-500">Hot sale</p>
+            <h2 className="text-2xl font-extrabold text-zinc-900">Ofertas del día</h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {products.slice(0, 16).map((p) => (
+            <ProductCard key={p.id} producto={p} />
+          ))}
+        </div>
+      </section>
+      <section className="container-shell">
+        <h2 className="mb-4 text-2xl font-extrabold text-zinc-900">Tiendas destacadas</h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+          {demoStores.map((store) => (
+            <StoreCard key={store.id} store={store} count={demoProducts.filter((p) => p.tienda_id === store.id).length} />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

@@ -30,26 +30,28 @@ export function Header() {
   );
 
   const showSearch = pathname === "/";
+  const showMenu = !pathname.startsWith("/dashboard") && !pathname.startsWith("/admin");
+  const cats = ["Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios", "Ofertas"];
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
-          <Link href="/" className="text-lg font-semibold tracking-tight text-white">
+      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-[#111111] text-white">
+        <div className="container-shell flex flex-wrap items-center gap-3 py-3">
+          <Link href="/" className="text-2xl font-extrabold tracking-tight text-white">
             La <span className="text-accent">Salada</span>
           </Link>
 
           {showSearch && (
-            <form onSubmit={onSearch} className="order-3 flex w-full flex-1 sm:order-none sm:max-w-md">
+            <form onSubmit={onSearch} className="order-3 flex w-full flex-1 sm:order-none sm:max-w-2xl">
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Buscar productos…"
-                className="w-full rounded-l-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                className="w-full rounded-l-xl border border-zinc-700 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-500 focus:border-orange-400 focus:outline-none"
               />
               <button
                 type="submit"
-                className="rounded-r-lg bg-accent px-4 py-2 text-sm font-medium text-black hover:bg-orange-400"
+                className="rounded-r-xl bg-accent px-5 py-2.5 text-sm font-bold text-white hover:bg-orange-600"
               >
                 Buscar
               </button>
@@ -83,6 +85,15 @@ export function Header() {
             </button>
           </nav>
         </div>
+        {showMenu && (
+          <div className="container-shell flex gap-2 overflow-x-auto pb-3">
+            {cats.map((c) => (
+              <button key={c} className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500">
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>

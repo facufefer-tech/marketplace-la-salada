@@ -56,22 +56,22 @@ export function CartDrawer({ open, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60" role="dialog" aria-modal>
       <button type="button" className="h-full flex-1 cursor-default" aria-label="Cerrar" onClick={onClose} />
-      <div className="h-full w-full max-w-md overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 shadow-xl">
+      <div className="h-full w-full max-w-md overflow-y-auto border-l border-zinc-200 bg-white p-4 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Carrito</h2>
-          <button type="button" onClick={onClose} className="text-zinc-400 hover:text-white">
+          <h2 className="text-lg font-semibold text-zinc-900">Carrito</h2>
+          <button type="button" onClick={onClose} className="text-zinc-500 hover:text-zinc-900">
             Cerrar
           </button>
         </div>
         {!lines.length ? (
-          <p className="text-sm text-zinc-500">Todavía no agregaste productos.</p>
+          <p className="text-sm text-zinc-600">Todavía no agregaste productos.</p>
         ) : (
           <ul className="space-y-4">
             {lines.map(({ producto, cantidad }) => {
               const img = producto.fotos?.[0];
               return (
-                <li key={producto.id} className="flex gap-3 border-b border-zinc-800 pb-4">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-900">
+                <li key={producto.id} className="flex gap-3 border-b border-zinc-200 pb-4">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
                     {img ? (
                       <Image src={img} alt="" fill className="object-cover" sizes="64px" />
                     ) : (
@@ -79,7 +79,7 @@ export function CartDrawer({ open, onClose }: Props) {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white">{producto.nombre}</p>
+                    <p className="truncate text-sm font-medium text-zinc-900">{producto.nombre}</p>
                     {producto.tiendas?.slug && (
                       <Link
                         href={`/${producto.tiendas.slug}`}
@@ -96,7 +96,7 @@ export function CartDrawer({ open, onClose }: Props) {
                         max={producto.stock}
                         value={cantidad}
                         onChange={(e) => setQty(producto.id, parseInt(e.target.value, 10) || 1)}
-                        className="w-16 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                        className="w-16 rounded border border-zinc-300 bg-white px-2 py-1 text-sm"
                       />
                       <button
                         type="button"
@@ -107,7 +107,7 @@ export function CartDrawer({ open, onClose }: Props) {
                       </button>
                     </div>
                   </div>
-                  <div className="text-sm font-medium text-white">
+                  <div className="text-sm font-medium text-zinc-900">
                     ${(Number(producto.precio) * cantidad).toLocaleString("es-AR")}
                   </div>
                 </li>
@@ -117,18 +117,18 @@ export function CartDrawer({ open, onClose }: Props) {
         )}
 
         {lines.length > 0 && (
-          <div className="mt-6 space-y-3 border-t border-zinc-800 pt-4">
-            <label className="block text-xs text-zinc-400">
+          <div className="mt-6 space-y-3 border-t border-zinc-200 pt-4">
+            <label className="block text-xs text-zinc-600">
               Email (opcional, para el comprobante)
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
+                className="mt-1 w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
               />
             </label>
-            <p className="text-sm text-zinc-300">
-              Total: <span className="font-semibold text-white">${total().toLocaleString("es-AR")}</span>
+            <p className="text-sm text-zinc-700">
+              Total: <span className="font-semibold text-zinc-900">${total().toLocaleString("es-AR")}</span>
             </p>
             <p className="text-xs text-zinc-500">
               Comisión marketplace ~5% (split Mercado Pago). Una tienda por compra.
