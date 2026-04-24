@@ -65,6 +65,7 @@ export default async function ProductoPage({ params }: Props) {
 
         <div>
           <h1 className="text-3xl font-extrabold text-zinc-900">{row.nombre}</h1>
+          {row.marca && <p className="mt-1 text-sm font-bold uppercase tracking-wide text-orange-500">{row.marca}</p>}
           <p className="mt-4 text-3xl font-extrabold text-orange-500">${Number(row.precio).toLocaleString("es-AR")}</p>
           <dl className="mt-6 space-y-2 text-sm text-zinc-600">
             {row.categoria && (

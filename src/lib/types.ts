@@ -19,6 +19,7 @@ export type Producto = {
   id: string;
   tienda_id: string;
   nombre: string;
+  marca?: string | null;
   descripcion: string | null;
   precio: number;
   categoria: string | null;

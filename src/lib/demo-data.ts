@@ -55,6 +55,11 @@ const names = [
 const cats = ["Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios", "Abrigos", "Deportivo"];
 const talles = ["XS", "S", "M", "L", "XL", "XXL"];
 const colores = ["Negro", "Blanco", "Azul", "Rojo", "Verde", "Gris", "Beige"];
+const marcas = [
+  "URBX", "Ceci Studio", "Vaquero Pro", "MiniTrend", "Belgrano Steps",
+  "Glam Night Label", "SportPeak", "BaseLab", "WOW Bags", "Invierno Norte",
+  "Summer Loop", "Denim Republic", "Exec Femme", "Kings Dept", "Outlet Flash",
+];
 
 export const demoProducts: DemoProduct[] = names.map((n, i) => {
   const store = demoStores[i % demoStores.length];
@@ -65,6 +70,7 @@ export const demoProducts: DemoProduct[] = names.map((n, i) => {
     id: `demo-${i + 1}`,
     tienda_id: store.id,
     nombre: n,
+    marca: marcas[i % marcas.length],
     descripcion: `${n} ideal para uso diario con excelente relación precio-calidad.`,
     precio: price,
     categoria: cats[i % cats.length],

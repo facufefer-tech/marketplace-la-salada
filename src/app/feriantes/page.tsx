@@ -56,6 +56,9 @@ export default function FeriantesPage() {
                   <Link href={`/${store.slug}`} className="inline-block rounded-lg border border-zinc-600 px-3 py-1.5 text-xs font-bold text-white hover:border-orange-500">
                     Ver tienda demo
                   </Link>
+                  <Link href={`/feriantes/${store.slug}`} className="ml-2 inline-block rounded-lg border border-orange-500 px-3 py-1.5 text-xs font-bold text-orange-400 hover:bg-orange-500 hover:text-white">
+                    Ver perfil feriante
+                  </Link>
                 </div>
               </article>
             );

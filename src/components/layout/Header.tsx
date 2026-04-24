@@ -87,11 +87,31 @@ export function Header() {
         </div>
         {showMenu && (
           <div className="container-shell flex gap-2 overflow-x-auto pb-3">
-            {cats.map((c) => (
-              <button key={c} className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500">
-                {c}
-              </button>
-            ))}
+            {cats.map((c) => {
+              if (c === "Feriantes") {
+                return (
+                  <Link key={c} href="/feriantes" className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500">
+                    {c}
+                  </Link>
+                );
+              }
+              if (c === "Ofertas") {
+                return (
+                  <Link key={c} href="/?descuento=1" className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500">
+                    {c}
+                  </Link>
+                );
+              }
+              return (
+                <Link
+                  key={c}
+                  href={`/?categoria=${encodeURIComponent(c)}`}
+                  className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500"
+                >
+                  {c}
+                </Link>
+              );
+            })}
           </div>
         )}
       </header>

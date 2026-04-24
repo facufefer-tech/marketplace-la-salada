@@ -34,6 +34,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="line-clamp-2 text-sm font-bold text-white">{producto.nombre}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-400">{producto.marca ?? "Marca propia"}</p>
             <p className="text-xs text-zinc-400">{producto.tiendas?.nombre ?? "Tienda La Salada"}</p>
           </div>
           <button type="button" onClick={() => setFav((v) => !v)} className="text-lg leading-none text-zinc-300">
