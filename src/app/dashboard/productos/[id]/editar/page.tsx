@@ -9,13 +9,14 @@ export const dynamic = "force-dynamic";
 type Props = { params: { id: string } };
 
 export default async function EditarProductoPage({ params }: Props) {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth?next=/dashboard/productos");
-
   try {
+    const { id } = await Promise.resolve(params);
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) redirect("/auth?next=/dashboard/productos");
+
     const { data: tienda } = await supabase.from("tiendas").select("id").eq("owner_id", user.id).maybeSingle();
     if (!tienda) redirect("/dashboard");
 
@@ -25,7 +26,7 @@ export default async function EditarProductoPage({ params }: Props) {
     const full = await supabase
       .from("productos")
       .select("*, tiendas(slug,nombre)")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("tienda_id", tienda.id)
       .maybeSingle();
 
@@ -33,7 +34,7 @@ export default async function EditarProductoPage({ params }: Props) {
       const basic = await supabase
         .from("productos")
         .select("id,tienda_id,nombre,descripcion,precio,categoria,talle,color,stock,fotos,activo,destacado,created_at")
-        .eq("id", params.id)
+        .eq("id", id)
         .eq("tienda_id", tienda.id)
         .maybeSingle();
       p = (basic.data as Record<string, unknown> | null) ?? null;
@@ -57,10 +58,13 @@ export default async function EditarProductoPage({ params }: Props) {
       );
     }
 
-    const { data: rawVariants, error: vErr } = await supabase.from("product_variants").select("*").eq("producto_id", params.id);
+    const { data: rawVariants, error: vErr } = await supabase.from("product_variants").select("*").eq("producto_id", id);
     const initialVariants: ProductVariant[] = vErr ? [] : (rawVariants as ProductVariant[]) ?? [];
 
     const producto = p as Producto;
+    producto.tallas = Array.isArray(producto.tallas) ? producto.tallas : [];
+    producto.colores = Array.isArray(producto.colores) ? producto.colores : [];
+    producto.fotos = Array.isArray(producto.fotos) ? producto.fotos : [];
     if (!producto.tiendas && p && typeof p === "object" && "tiendas" in p) {
       producto.tiendas = (p as { tiendas?: Producto["tiendas"] }).tiendas;
     }

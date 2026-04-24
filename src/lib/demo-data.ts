@@ -53,7 +53,7 @@ const catalogItems = [
   { nombre: "Remera oversize", categoria: "Remeras", foto: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400", descripcion: "Calce amplio, tendencia oversize.", precio: 15500, precioMayorista: 12400, talle: "M, L, XL", color: "Beige", stock: 17 },
 
   { nombre: "Jean recto clásico", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400", descripcion: "Denim resistente y tiro medio.", precio: 28500, precioMayorista: 23500, talle: "38, 40, 42, 44", color: "Azul", stock: 18 },
-  { nombre: "Jean skinny", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1555689502-c4b22d76c56f?w=400", descripcion: "Jean elastizado con ajuste slim.", precio: 27900, precioMayorista: 22900, talle: "36, 38, 40, 42", color: "Azul oscuro", stock: 14 },
+  { nombre: "Jean skinny", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400", descripcion: "Jean elastizado con ajuste slim.", precio: 27900, precioMayorista: 22900, talle: "36, 38, 40, 42", color: "Azul oscuro", stock: 14 },
   { nombre: "Pantalón cargo", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400", descripcion: "Bolsillos laterales, estilo urbano.", precio: 31000, precioMayorista: 25800, talle: "M, L, XL", color: "Verde oliva", stock: 16 },
   { nombre: "Jogging deportivo", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400", descripcion: "Frisa liviana para uso diario.", precio: 21000, precioMayorista: 17000, talle: "S, M, L, XL", color: "Gris", stock: 24 },
 
