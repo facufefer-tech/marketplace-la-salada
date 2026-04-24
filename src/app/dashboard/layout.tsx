@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { DASHBOARD_DEMO } from "@/lib/dashboard-demo";
 
 const nav = [
   { href: "/dashboard", label: "Inicio" },
@@ -8,17 +7,16 @@ const nav = [
   { href: "/dashboard/pedidos", label: "Pedidos" },
 ];
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth?next=/dashboard");
-
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // Modo pruebas: sin redirect ni sesión; usuario/tienda ficticios
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-3.5rem)] max-w-6xl flex-col gap-6 px-4 py-6 md:flex-row">
       <aside className="shrink-0 md:w-52">
-        <p className="mb-3 truncate text-xs text-zinc-500">{user.email}</p>
+        <p className="mb-1 truncate text-sm font-bold text-white">{DASHBOARD_DEMO.usuario}</p>
+        <p className="mb-3 truncate text-xs text-zinc-500">
+          {DASHBOARD_DEMO.tienda}
+          <span className="ml-1 text-zinc-600">(modo prueba)</span>
+        </p>
         <nav className="flex flex-row gap-2 overflow-x-auto md:flex-col md:gap-1">
           {nav.map((n) => (
             <Link

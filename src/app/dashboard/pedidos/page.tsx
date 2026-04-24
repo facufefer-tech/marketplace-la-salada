@@ -1,41 +1,40 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { OnboardingWizard } from "@/components/dashboard/OnboardingWizard";
 import { OrdersTable } from "@/components/dashboard/OrdersTable";
+import { DASHBOARD_DEMO, TIENDA_ID_VACIO_PRUEBA } from "@/lib/dashboard-demo";
 
 export default async function DashboardPedidosPage() {
   const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  const { data: tienda } = await supabase.from("tiendas").select("id, slug, nombre").eq("owner_id", user!.id).maybeSingle();
+  const { data: tienda } = await supabase
+    .from("tiendas")
+    .select("id, slug, nombre")
+    .eq("slug", DASHBOARD_DEMO.slug)
+    .maybeSingle();
 
-  if (!tienda) {
-    return (
-      <div>
-        <h1 className="text-xl font-bold text-white">Pedidos</h1>
-        <p className="mt-2 text-sm text-zinc-500">Primero creá tu tienda.</p>
-        <div className="mt-6 max-w-lg">
-          <OnboardingWizard />
-        </div>
-      </div>
-    );
-  }
+  const tiendaId = tienda?.id ?? TIENDA_ID_VACIO_PRUEBA;
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-xl font-bold text-white">Pedidos recibidos</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Tienda{" "}
-          <Link href={`/${tienda.slug}`} className="text-accent hover:underline">
-            {tienda.nombre}
-          </Link>{" "}
-          — actualización en tiempo real (Supabase Realtime).
+          {DASHBOARD_DEMO.usuario} — {DASHBOARD_DEMO.tienda}
+          {tienda ? (
+            <>
+              {" "}
+              ·{" "}
+              <Link href={`/${tienda.slug}`} className="text-accent hover:underline">
+                {tienda.nombre}
+              </Link>{" "}
+              — actualización en tiempo real (Supabase Realtime).
+            </>
+          ) : (
+            <span className="text-zinc-600"> Modo prueba: sin tienda {DASHBOARD_DEMO.slug} en la base; tabla vacía.</span>
+          )}
         </p>
       </div>
-      <OrdersTable tiendaId={tienda.id} />
+      <OrdersTable tiendaId={tiendaId} />
     </div>
   );
 }

@@ -1,23 +1,7 @@
 import { createServerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse, type NextRequest } from "next/server";
 
-/** Ruta pública: sin auth bajo ninguna condición (también excluida en `config.matcher`). */
-const PATH_PRODUCTOS_NUEVO = "/dashboard/productos/nuevo";
-
-function normalizePathname(pathname: string) {
-  if (pathname === "/") return "/";
-  return pathname.replace(/\/+$/, "") || "/";
-}
-
-function isProductosNuevoPath(pathname: string) {
-  return normalizePathname(pathname) === PATH_PRODUCTOS_NUEVO;
-}
-
 export async function middleware(request: NextRequest) {
-  if (isProductosNuevoPath(request.nextUrl.pathname)) {
-    return NextResponse.next();
-  }
-
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -47,13 +31,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth";
-    url.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
+  // Modo pruebas: /dashboard sin protección (cualquiera entra)
   if (request.nextUrl.pathname.startsWith("/admin") && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth";
@@ -66,10 +44,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Excluir /dashboard/productos/nuevo: el middleware no corre para esa ruta
-     * (nada de sesión ni redirect).
-     */
-    "/((?!_next/static|_next/image|favicon.ico|dashboard/productos/nuevo|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
