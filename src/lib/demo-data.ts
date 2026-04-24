@@ -151,3 +151,10 @@ export const demoProducts: DemoProduct[] = catalogItems.map((item, i) => {
     nuevo: i % 6 === 0,
   };
 });
+
+export function getDemoProductById(id: string): DemoProduct | undefined {
+  return demoProducts.find((p) => p.id === id);
+}
+
+/** Mismos 50 productos demo del sitio, para el panel de Tienda Demo */
+export const demoProductsTiendaDemo = demoProducts;

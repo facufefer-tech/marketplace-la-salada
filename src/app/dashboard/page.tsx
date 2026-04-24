@@ -1,66 +1,66 @@
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { demoProductsTiendaDemo } from "@/lib/demo-data";
+import { demoPedidosFeriante } from "@/lib/demo-pedidos";
 import { DASHBOARD_DEMO } from "@/lib/dashboard-demo";
 
-export default async function DashboardHomePage() {
-  const supabase = createSupabaseServerClient();
-  const { data: tienda } = await supabase.from("tiendas").select("*").eq("slug", DASHBOARD_DEMO.slug).maybeSingle();
+const fmtMoney = (n: number) => `$${n.toLocaleString("es-AR")}`;
 
-  let nProd = 0;
-  let nPed = 0;
-  if (tienda) {
-    const { count: c1 } = await supabase
-      .from("productos")
-      .select("*", { count: "exact", head: true })
-      .eq("tienda_id", tienda.id);
-    const { count: c2 } = await supabase
-      .from("pedidos")
-      .select("*", { count: "exact", head: true })
-      .eq("tienda_id", tienda.id);
-    nProd = c1 ?? 0;
-    nPed = c2 ?? 0;
-  }
+export default function DashboardHomePage() {
+  const nProd = demoProductsTiendaDemo.length;
+  const nPed = demoPedidosFeriante.length;
+  const ventaMes = demoPedidosFeriante.filter((p) => p.estado !== "Pendiente").reduce((a, p) => a + p.total, 0);
+  const ticketPromedio = Math.round(ventaMes / Math.max(1, nPed - 1));
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-white">{DASHBOARD_DEMO.tienda}</h1>
-      <p className="mt-1 text-sm text-zinc-400">
-        Usuario: <span className="text-white">{DASHBOARD_DEMO.usuario}</span>
-        {" · "}
-        Slug:{" "}
-        <span className="text-zinc-300">/{DASHBOARD_DEMO.slug}</span>{" "}
-        <span className="text-zinc-600">(ficticio; si existe en Supabase, se muestran conteos reales)</span>
-      </p>
-      {tienda && (
-        <p className="mt-2 text-sm text-zinc-500">
-          Tienda vinculada en DB:{" "}
-          <Link href={`/${tienda.slug}`} className="text-accent hover:underline">
-            /{tienda.slug}
-          </Link>
-        </p>
-      )}
+      <div className="border-b border-zinc-100 pb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Hola, {DASHBOARD_DEMO.usuario}</h1>
+        <p className="mt-1 text-sm text-zinc-500">Resumen de {DASHBOARD_DEMO.tienda} · catálogo y pedidos de demostración</p>
+      </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
-          <p className="text-sm text-zinc-500">Productos</p>
-          <p className="text-2xl font-semibold text-white">{nProd}</p>
-          <Link href="/dashboard/productos" className="mt-2 inline-block text-sm text-accent hover:underline">
-            Gestionar
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Productos publicados</p>
+          <p className="mt-2 text-4xl font-bold tabular-nums text-zinc-900">{nProd}</p>
+          <Link href="/dashboard/productos" className="mt-3 inline-block text-sm font-medium text-orange-600 hover:underline">
+            Gestionar catálogo
           </Link>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
-          <p className="text-sm text-zinc-500">Pedidos</p>
-          <p className="text-2xl font-semibold text-white">{nPed}</p>
-          <Link href="/dashboard/pedidos" className="mt-2 inline-block text-sm text-accent hover:underline">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Pedidos (demo)</p>
+          <p className="mt-2 text-4xl font-bold tabular-nums text-zinc-900">{nPed}</p>
+          <Link href="/dashboard/pedidos" className="mt-3 inline-block text-sm font-medium text-orange-600 hover:underline">
             Ver pedidos
           </Link>
         </div>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Ventas aprox. (demo)</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-zinc-900">{fmtMoney(ventaMes)}</p>
+          <p className="mt-1 text-xs text-zinc-500">Excl. pedidos pendientes de pago</p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Ticket promedio</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-zinc-900">{fmtMoney(ticketPromedio)}</p>
+          <p className="mt-1 text-xs text-zinc-500">Sobre pedidos de muestra</p>
+        </div>
       </div>
-      <div className="mt-8 rounded-xl border border-zinc-800 bg-surface p-4 text-sm text-zinc-400">
-        <p>
-          Comisión marketplace por defecto: <strong className="text-white">5%</strong> (95% feriante / 5% plataforma en
-          checkout con Mercado Pago split). Modo prueba: sin login obligatorio.
-        </p>
+
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-5 text-sm text-zinc-600">
+          <p className="font-semibold text-zinc-800">Comisiones</p>
+          <p className="mt-2">
+            Mercado: <strong className="text-zinc-900">5%</strong> por transacción (configurable). En checkout con Mercado Pago:{" "}
+            <strong>95% feriante</strong> / <strong>5% plataforma</strong>.
+          </p>
+        </div>
+        <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-5 text-sm text-zinc-600">
+          <p className="font-semibold text-zinc-800">Próximos pasos</p>
+          <ul className="mt-2 list-inside list-disc space-y-1">
+            <li>Revisá productos y pedidos de demostración</li>
+            <li>Personalizá <Link href="/dashboard/tienda" className="font-medium text-orange-600 hover:underline">tu tienda</Link></li>
+            <li>Mirá <Link href="/dashboard/estadisticas" className="font-medium text-orange-600 hover:underline">estadísticas</Link></li>
+          </ul>
+        </div>
       </div>
     </div>
   );
