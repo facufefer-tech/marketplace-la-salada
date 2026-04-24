@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { demoProducts } from "@/lib/demo-data";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -16,6 +17,7 @@ const METODOS: { id: string; label: string }[] = [
 ];
 
 export default function CarritoPage() {
+  const router = useRouter();
   const { lines, remove, setQty, total, grandTotal, metodoEnvio, costoEnvio, setEnvio, descuento, cuponCodigo, setCupon, clearCupon, clear } =
     useCartStore();
   const [msg, setMsg] = useState<string | null>(null);
@@ -199,7 +201,7 @@ export default function CarritoPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setMsg("Próximamente: conectá tu Mercado Pago en el panel para recibir pagos reales en la demo.");
+                  router.push("/checkout");
                 }}
                 className="rounded-2xl bg-orange-500 px-6 py-3 text-center text-sm font-black text-black transition hover:bg-orange-400"
               >

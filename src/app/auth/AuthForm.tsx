@@ -61,6 +61,9 @@ export function AuthForm() {
         router.push(next);
         router.refresh();
       }, 900);
+    } catch (e) {
+      const m = e instanceof Error ? e.message : "No pudimos completar la solicitud";
+      setMsg(m);
     } finally {
       setLoading(false);
     }

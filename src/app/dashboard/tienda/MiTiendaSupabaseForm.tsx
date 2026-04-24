@@ -84,6 +84,9 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
       }
       setMsg("Guardado correctamente.");
       router.refresh();
+    } catch (e) {
+      const m = e instanceof Error ? e.message : "Error al guardar";
+      setMsg(m);
     } finally {
       setSaving(false);
     }

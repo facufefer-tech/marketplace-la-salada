@@ -21,6 +21,31 @@ export function HomeCatalog() {
   const [color, setColor] = useState("Todos");
   const [visible, setVisible] = useState(12);
   const [loading, setLoading] = useState(true);
+  const [sourceProducts, setSourceProducts] = useState(demoProducts);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    void (async () => {
+      try {
+        const res = await fetch("/api/productos?page=0", { cache: "no-store" });
+        const j = (await res.json()) as { data?: typeof demoProducts };
+        if (!active) return;
+        if (res.ok && Array.isArray(j.data) && j.data.length > 0) {
+          setSourceProducts(j.data);
+        } else {
+          setSourceProducts(demoProducts);
+        }
+      } catch {
+        if (active) setSourceProducts(demoProducts);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const cat = searchParams.get("categoria");
@@ -34,19 +59,19 @@ export function HomeCatalog() {
     setLoading(true);
     const tm = window.setTimeout(() => setLoading(false), 550);
     return () => window.clearTimeout(tm);
-  }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color]);
+  }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color, sourceProducts]);
 
   const coloresU = useMemo(() => {
     const s = new Set<string>();
-    demoProducts.forEach((p) => {
+    sourceProducts.forEach((p) => {
       if (p.color) s.add(p.color);
     });
     return ["Todos", ...Array.from(s).sort((a, b) => a.localeCompare(b, "es"))];
-  }, []);
+  }, [sourceProducts]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
-    return demoProducts.filter((p) => {
+    return sourceProducts.filter((p) => {
       if (categoria !== "Todas" && p.categoria !== categoria) return false;
       if (soloOfertas && (!p.descuentoPct || p.descuentoPct < 25)) return false;
       const pr = Number(p.precio);
@@ -69,7 +94,7 @@ export function HomeCatalog() {
       }
       return true;
     });
-  }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color]);
+  }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color, sourceProducts]);
   const visibleItems = filtered.slice(0, visible);
 
   return (

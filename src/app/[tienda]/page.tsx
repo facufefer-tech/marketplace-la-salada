@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { demoProducts, demoStores } from "@/lib/demo-data";
@@ -20,26 +19,45 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TiendaPage({ params, searchParams }: Props) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) notFound();
-
-  const supabase = createClient(url, key);
-  const { data: tienda, error } = await supabase
-    .from("tiendas")
-    .select("*")
-    .eq("slug", params.tienda)
-    .eq("activa", true)
-    .maybeSingle();
-
   const fallbackStore = demoStores.find((s) => s.slug === params.tienda);
-  if ((error || !tienda) && !fallbackStore) notFound();
 
-  const { data: productos } = await supabase
-    .from("productos")
-    .select("*")
-    .eq("tienda_id", tienda?.id ?? "__none__")
-    .eq("activo", true)
-    .order("destacado", { ascending: false })
-    .order("created_at", { ascending: false });
+  if (!url || !key) {
+    if (!fallbackStore) {
+      return (
+        <main className="container-shell py-10">
+          <section className="rounded-2xl border border-[#E0E0E0] bg-white p-8 text-center">
+            <h1 className="text-3xl font-black text-[#1A1A1A]">Esta tienda está en preparación</h1>
+            <p className="mt-2 text-[#555555]">
+              Estamos terminando de cargar productos y datos de contacto. Volvé en unos minutos.
+            </p>
+            <Link href="/" className="mt-5 inline-block rounded-xl bg-[#FF6B00] px-4 py-2 font-bold text-white">
+              Volver al inicio
+            </Link>
+          </section>
+        </main>
+      );
+    }
+  }
+
+  const supabase = url && key ? createClient(url, key) : null;
+  const { data: tienda } = supabase
+    ? await supabase
+        .from("tiendas")
+        .select("*")
+        .eq("slug", params.tienda)
+        .eq("activa", true)
+        .maybeSingle()
+    : { data: null };
+
+  const { data: productos } = supabase
+    ? await supabase
+        .from("productos")
+        .select("*")
+        .eq("tienda_id", tienda?.id ?? "__none__")
+        .eq("activo", true)
+        .order("destacado", { ascending: false })
+        .order("created_at", { ascending: false })
+    : { data: [] };
 
   const rawList = (productos ?? []) as (Producto & { estado_publicacion?: string })[];
   const filtered = rawList.length
@@ -77,7 +95,26 @@ export default async function TiendaPage({ params, searchParams }: Props) {
           owner: fallbackStore.owner,
         }
       : null);
-  if (!viewStore) notFound();
+  if (!viewStore) {
+    return (
+      <main className="container-shell py-10">
+        <section className="rounded-2xl border border-[#E0E0E0] bg-white p-8 text-center">
+          <h1 className="text-3xl font-black text-[#1A1A1A]">Tienda no encontrada</h1>
+          <p className="mt-2 text-[#555555]">
+            Esta URL todavía no tiene tienda activa. Te mostramos otras opciones del marketplace.
+          </p>
+          <div className="mt-5 flex justify-center gap-3">
+            <Link href="/feriantes" className="rounded-xl border border-[#E0E0E0] px-4 py-2 font-bold text-[#1A1A1A]">
+              Ver feriantes
+            </Link>
+            <Link href="/" className="rounded-xl bg-[#FF6B00] px-4 py-2 font-bold text-white">
+              Ir al inicio
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="container-shell py-8">
