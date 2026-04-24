@@ -3,9 +3,8 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { ProductoDetalleClient } from "@/components/product/ProductoDetalleClient";
-import { demoProducts, getDemoStoreBySlug, getDemoProductById } from "@/lib/demo-data";
 import { getSiteUrl } from "@/lib/site-url";
-import type { EnvioMetodos, Producto, ResenaRow, Tienda } from "@/lib/types";
+import type { Producto, ResenaRow, Tienda } from "@/lib/types";
 
 type Props = { params: { tienda: string; id: string } };
 export const revalidate = 0;
@@ -53,7 +52,6 @@ export default async function ProductoPage({ params }: Props) {
       .from("productos")
       .select("*, tiendas(slug,nombre,activa,logo_url,whatsapp,instagram,direccion,envio_metodos)")
       .eq("id", params.id)
-      .eq("activo", true)
       .maybeSingle();
     if (!error && row) {
       const t = row.tiendas as unknown as (TiendaRow & { activa?: boolean }) | null;
@@ -76,30 +74,6 @@ export default async function ProductoPage({ params }: Props) {
         similares = (sim ?? []) as Producto[];
       }
     }
-  }
-
-  const demoP = getDemoProductById(params.id);
-  const demoStore = getDemoStoreBySlug(params.tienda);
-
-  if (!producto && demoP && demoP.tiendas?.slug === params.tienda && demoStore) {
-    producto = { ...demoP };
-    const emb = demoP.tiendas;
-    const env = emb?.envio_metodos as EnvioMetodos | undefined;
-    tiendaRow = {
-      slug: demoStore.slug,
-      nombre: demoStore.nombre,
-      logo_url: null,
-      whatsapp: emb?.whatsapp ?? null,
-      instagram: null,
-      direccion: emb?.direccion ?? "La Salada (demo)",
-      envio_metodos: env ?? { retiro: true, correo: true, oca: false, andreani: false },
-    };
-    enviosConfig = [
-      { metodo: "retiro", precio: 0, activo: true, tiempo_entrega: "Coordinar", descripcion: "Puesto" },
-      { metodo: "correo_argentino", precio: 4500, activo: true, tiempo_entrega: "3-7 d", descripcion: "Demo" },
-    ];
-    mismaTienda = demoProducts.filter((x) => x.tiendas?.slug === params.tienda && x.id !== demoP.id).slice(0, 4);
-    similares = demoProducts.filter((x) => x.categoria === demoP.categoria && x.id !== demoP.id).slice(0, 4);
   }
 
   if (!producto || !tiendaRow) {

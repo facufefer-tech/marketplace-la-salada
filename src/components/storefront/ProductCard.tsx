@@ -19,7 +19,8 @@ function pct(p: UIProduct) {
 export function ProductCard({ producto }: { producto: UIProduct }) {
   const add = useCartStore((s) => s.add);
   const [fav, setFav] = useState(false);
-  const slug = producto.tiendas?.slug ?? "tienda";
+  const isDemo = String(producto.id).startsWith("demo-");
+  const slug = producto.tiendas?.slug ?? (isDemo ? "moda-la-salada-demo" : "tienda");
   const href = `/${slug}/producto/${producto.id}`;
   const desc = pct(producto);
   const lista = producto.precio_lista ?? producto.precioOriginal;

@@ -33,27 +33,33 @@ export function HomeCatalog() {
         if (!active) return;
         if (res.ok && Array.isArray(j.data) && j.data.length > 0) {
           setSourceProducts(
-            j.data.map((p) => ({
-              ...p,
-              talle:
-                (p as { talle?: string | null; tallas?: string[] | null }).talle ??
-                ((p as { tallas?: string[] | null }).tallas ?? []).join(", "),
-              color:
-                (p as { color?: string | null; colores?: string[] | null }).color ??
-                ((p as { colores?: string[] | null }).colores ?? []).join(", "),
-              tiendas:
-                p.tiendas ??
-                ((p.tienda_slug || p.tienda_nombre)
-                  ? {
-                      slug: p.tienda_slug ?? "",
-                      nombre: p.tienda_nombre ?? "Tienda",
-                      logo_url: null,
-                      whatsapp: null,
-                      direccion: null,
-                      envio_metodos: null,
-                    }
-                  : null),
-            })) as typeof demoProducts,
+            j.data.map((p) => {
+              const tiendaSlug =
+                p.tienda_slug ??
+                p.tiendas?.slug ??
+                (String(p.id).startsWith("demo-") ? "moda-la-salada-demo" : "");
+              return {
+                ...p,
+                talle:
+                  (p as { talle?: string | null; tallas?: string[] | null }).talle ??
+                  ((p as { tallas?: string[] | null }).tallas ?? []).join(", "),
+                color:
+                  (p as { color?: string | null; colores?: string[] | null }).color ??
+                  ((p as { colores?: string[] | null }).colores ?? []).join(", "),
+                tiendas:
+                  ((p.tiendas && p.tiendas.slug) ? p.tiendas : null) ??
+                  (tiendaSlug || p.tienda_nombre
+                    ? {
+                        slug: tiendaSlug,
+                        nombre: p.tienda_nombre ?? "Tienda",
+                        logo_url: null,
+                        whatsapp: null,
+                        direccion: null,
+                        envio_metodos: null,
+                      }
+                    : null),
+              };
+            }) as typeof demoProducts,
           );
         } else {
           setSourceProducts(demoProducts);
