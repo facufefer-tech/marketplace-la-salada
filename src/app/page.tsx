@@ -7,13 +7,25 @@ import { CustomerProof } from "@/components/marketing/CustomerProof";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { demoProducts, demoStores } from "@/lib/demo-data";
 
+export const dynamic = "force-dynamic";
+
 type HomeProps = {
   searchParams?: { categoria?: string; descuento?: string; q?: string };
 };
 
+function normalizeCategoriaParam(raw: string | undefined) {
+  if (!raw) return undefined;
+  try {
+    return decodeURIComponent(raw).trim() || undefined;
+  } catch {
+    return raw.trim() || undefined;
+  }
+}
+
 export default function HomePage({ searchParams }: HomeProps) {
-  const categoria = searchParams?.categoria?.trim();
-  const q = searchParams?.q?.trim().toLowerCase();
+  const categoria = normalizeCategoriaParam(searchParams?.categoria);
+  const qRaw = searchParams?.q?.trim() ?? "";
+  const q = qRaw.toLowerCase();
   const soloOfertas = searchParams?.descuento === "1";
 
   const products = demoProducts.filter((p) => {

@@ -1,36 +1,48 @@
 "use client";
 
-import { CldUploadWidget } from "next-cloudinary";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { DASHBOARD_DEMO } from "@/lib/dashboard-demo";
-import { demoStores } from "@/lib/demo-data";
 
-const KEY = "ls-dashboard-tienda-preview";
+const KEY = "ls-dashboard-mi-tienda-v2";
 
-type TiendaLocal = { logo: string; banner: string; descripcion: string };
-
-const defaultData: TiendaLocal = {
-  logo: demoStores[0]?.avatarUrl ?? "",
-  banner: demoStores[0]?.bannerUrl ?? "",
-  descripcion: `Bienvenidos a ${DASHBOARD_DEMO.tienda}. Moda y precios de mercado, envíos a todo el país. Catálogo actualizado semanalmente.`,
+export type MiTiendaLocal = {
+  nombreTienda: string;
+  descripcion: string;
+  whatsapp: string;
+  logoUrl: string;
 };
 
+const defaultData: MiTiendaLocal = {
+  nombreTienda: DASHBOARD_DEMO.tienda,
+  descripcion:
+    "Moda y precios de mercado. Envíos a todo el país. Atención personalizada por WhatsApp.",
+  whatsapp: "+54 11 0000-0000",
+  logoUrl: "",
+};
+
+const CloudinaryLogoUpload = dynamic(
+  () => import("@/components/dashboard/CloudinaryLogoUpload").then((m) => m.CloudinaryLogoUpload),
+  { ssr: false, loading: () => <span className="text-xs text-zinc-500">Cargando subida…</span> },
+);
+
 export function MiTiendaForm() {
-  const [logo, setLogo] = useState(defaultData.logo);
-  const [banner, setBanner] = useState(defaultData.banner);
-  const [descripcion, setDescripcion] = useState(defaultData.descripcion);
-  const [ok, setOk] = useState(false);
+  const [data, setData] = useState<MiTiendaLocal>(defaultData);
   const [ready, setReady] = useState(false);
+  const [ok, setOk] = useState(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
-        const j = JSON.parse(raw) as TiendaLocal;
-        if (j.logo) setLogo(j.logo);
-        if (j.banner) setBanner(j.banner);
-        if (j.descripcion) setDescripcion(j.descripcion);
+        const j = JSON.parse(raw) as Partial<MiTiendaLocal>;
+        setData((prev) => ({
+          nombreTienda: j.nombreTienda ?? prev.nombreTienda,
+          descripcion: j.descripcion ?? prev.descripcion,
+          whatsapp: j.whatsapp ?? prev.whatsapp,
+          logoUrl: j.logoUrl ?? prev.logoUrl,
+        }));
       }
     } catch {
       /* ignore */
@@ -38,10 +50,13 @@ export function MiTiendaForm() {
     setReady(true);
   }, []);
 
+  function update<K extends keyof MiTiendaLocal>(key: K, value: MiTiendaLocal[K]) {
+    setData((d) => ({ ...d, [key]: value }));
+  }
+
   function save(e: React.FormEvent) {
     e.preventDefault();
-    const payload: TiendaLocal = { logo, banner, descripcion };
-    localStorage.setItem(KEY, JSON.stringify(payload));
+    localStorage.setItem(KEY, JSON.stringify(data));
     setOk(true);
     setTimeout(() => setOk(false), 3000);
   }
@@ -51,76 +66,69 @@ export function MiTiendaForm() {
   }
 
   return (
-    <form onSubmit={save} className="max-w-2xl space-y-6">
-      <div>
-        <span className="text-sm font-medium text-zinc-700">Logo de la tienda</span>
-        <div className="mt-2 flex items-start gap-4">
-          <div className="relative h-24 w-24 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
-            {logo ? <Image src={logo} alt="Logo" fill className="object-cover" sizes="96px" /> : null}
-          </div>
-          <CldUploadWidget
-            signatureEndpoint="/api/cloudinary/sign"
-            options={{ sources: ["local"], maxFiles: 1 }}
-            onSuccess={(r) => {
-              const u = (r.info as { secure_url?: string })?.secure_url;
-              if (u) setLogo(u);
-            }}
-          >
-            {({ open }) => (
-              <button
-                type="button"
-                onClick={() => open()}
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-              >
-                Subir logo
-              </button>
-            )}
-          </CldUploadWidget>
-        </div>
-      </div>
-
-      <div>
-        <span className="text-sm font-medium text-zinc-700">Banner</span>
-        <div className="relative mt-2 h-40 w-full max-w-2xl overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100">
-          {banner ? <Image src={banner} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" /> : null}
-        </div>
-        <CldUploadWidget
-          signatureEndpoint="/api/cloudinary/sign"
-          options={{ sources: ["local"], maxFiles: 1 }}
-          onSuccess={(r) => {
-            const u = (r.info as { secure_url?: string })?.secure_url;
-            if (u) setBanner(u);
-          }}
-        >
-          {({ open }) => (
-            <button
-              type="button"
-              onClick={() => open()}
-              className="mt-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-            >
-              Subir banner
-            </button>
-          )}
-        </CldUploadWidget>
-      </div>
+    <form onSubmit={save} className="max-w-xl space-y-5">
+      <label className="block">
+        <span className="text-sm font-medium text-zinc-700">Nombre de la tienda</span>
+        <input
+          value={data.nombreTienda}
+          onChange={(e) => update("nombreTienda", e.target.value)}
+          className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-zinc-900 shadow-sm"
+          required
+        />
+      </label>
 
       <label className="block">
         <span className="text-sm font-medium text-zinc-700">Descripción</span>
         <textarea
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          rows={5}
+          value={data.descripcion}
+          onChange={(e) => update("descripcion", e.target.value)}
+          rows={4}
           className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-zinc-900 shadow-sm"
         />
       </label>
 
-      {ok && <p className="text-sm font-medium text-emerald-600">Cambios guardados.</p>}
+      <label className="block">
+        <span className="text-sm font-medium text-zinc-700">WhatsApp</span>
+        <input
+          value={data.whatsapp}
+          onChange={(e) => update("whatsapp", e.target.value)}
+          placeholder="+54 11 …"
+          className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-zinc-900 shadow-sm"
+        />
+      </label>
+
+      <div>
+        <span className="text-sm font-medium text-zinc-700">Logo</span>
+        <p className="text-xs text-zinc-500">Subí una imagen (Cloudinary) o pegá la URL pública abajo.</p>
+        <div className="mt-2 flex flex-wrap items-center gap-4">
+          <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+            {data.logoUrl ? (
+              <Image src={data.logoUrl} alt="Logo" fill className="object-contain" sizes="80px" unoptimized={data.logoUrl.startsWith("data:")} />
+            ) : null}
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <CloudinaryLogoUpload
+              onUploaded={(url) => {
+                update("logoUrl", url);
+              }}
+            />
+          </div>
+        </div>
+        <input
+          value={data.logoUrl}
+          onChange={(e) => update("logoUrl", e.target.value)}
+          placeholder="https://res.cloudinary.com/… (opcional si subís arriba)"
+          className="mt-2 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900"
+        />
+      </div>
+
+      {ok && <p className="text-sm font-medium text-emerald-600">Guardado en este navegador (localStorage).</p>}
 
       <button
         type="submit"
         className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800"
       >
-        Guardar tienda
+        Guardar cambios
       </button>
     </form>
   );

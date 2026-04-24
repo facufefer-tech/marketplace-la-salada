@@ -21,10 +21,14 @@ export function Header() {
   const onSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
+      const term = q.trim();
       const params = new URLSearchParams(searchParams.toString());
-      if (q) params.set("q", q);
+      if (term) params.set("q", term);
       else params.delete("q");
-      router.push(`/?${params.toString()}`);
+      const qs = params.toString();
+      /* Sin "?" suelto: asegura que /?q=... recarga el listado con filtros */
+      router.push(qs ? `/?${qs}` : "/");
+      router.refresh();
     },
     [q, router, searchParams],
   );

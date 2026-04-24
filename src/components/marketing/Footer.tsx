@@ -9,6 +9,7 @@ const cols = [
       { href: "/sobre-nosotros", label: "Sobre nosotros" },
       { href: "/como-comprar", label: "Cómo comprar" },
       { href: "/ser-socio", label: "Convertite en socio" },
+      { href: "/demo-feriante", label: "Demo feriante (4 pasos)" },
       { href: "/privacidad", label: "Política de privacidad" },
     ],
   },
