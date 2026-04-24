@@ -6,8 +6,11 @@ import { usePathname } from "next/navigation";
 const nav = [
   { href: "/dashboard", label: "Inicio" },
   { href: "/dashboard/productos", label: "Productos" },
+  { href: "/dashboard/importar", label: "Importar CSV" },
+  { href: "/dashboard/promociones", label: "Promociones" },
   { href: "/dashboard/pedidos", label: "Pedidos" },
   { href: "/dashboard/tienda", label: "Mi tienda" },
+  { href: "/dashboard/reseñas", label: "Reseñas" },
   { href: "/dashboard/estadisticas", label: "Estadísticas" },
 ];
 

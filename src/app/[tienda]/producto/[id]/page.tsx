@@ -2,13 +2,39 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import type { Metadata } from "next";
 import { ProductoDetalleClient } from "@/components/product/ProductoDetalleClient";
 import { getDemoStoreBySlug, getDemoProductById } from "@/lib/demo-data";
-import type { EnvioMetodos, Producto, Tienda } from "@/lib/types";
+import { getSiteUrl } from "@/lib/site-url";
+import type { EnvioMetodos, Producto, ResenaRow, Tienda } from "@/lib/types";
 
 type Props = { params: { tienda: string; id: string } };
 
 type TiendaRow = Pick<Tienda, "slug" | "nombre" | "logo_url" | "whatsapp" | "instagram" | "direccion" | "envio_metodos">;
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const base = getSiteUrl();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  let title = `Producto | La Salada`;
+  let desc = "Moda La Salada marketplace";
+  let image: string | undefined;
+  if (url && key) {
+    const supabase = createClient(url, key);
+    const { data: row } = await supabase.from("productos").select("nombre, descripcion, fotos, seo_titulo, seo_descripcion").eq("id", params.id).maybeSingle();
+    if (row) {
+      const r = row as { nombre: string; descripcion: string | null; fotos: string[]; seo_titulo?: string; seo_descripcion?: string };
+      title = r.seo_titulo || r.nombre;
+      desc = r.seo_descripcion || r.descripcion || desc;
+      image = r.fotos?.[0];
+    }
+  }
+  return {
+    title: `${title} | La Salada`,
+    description: desc,
+    openGraph: { title, description: desc, url: `${base}/${params.tienda}/producto/${params.id}`, images: image ? [{ url: image }] : [] },
+  };
+}
 
 export default async function ProductoPage({ params }: Props) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -16,6 +42,8 @@ export default async function ProductoPage({ params }: Props) {
 
   let producto: Record<string, unknown> | null = null;
   let tiendaRow: TiendaRow | null = null;
+  let enviosConfig: { metodo: string; precio: number; activo: boolean; tiempo_entrega: string | null; descripcion: string | null }[] = [];
+  let resenasList: ResenaRow[] = [];
 
   if (url && key) {
     const supabase = createClient(url, key);
@@ -30,6 +58,13 @@ export default async function ProductoPage({ params }: Props) {
       if (t?.slug === params.tienda) {
         producto = row;
         tiendaRow = t;
+        const tid = (row as { tienda_id: string }).tienda_id;
+        const [{ data: ev }, { data: rs }] = await Promise.all([
+          supabase.from("envios_config").select("*").eq("tienda_id", tid).eq("activo", true),
+          supabase.from("resenas").select("*").eq("producto_id", params.id).eq("aprobada", true),
+        ]);
+        enviosConfig = (ev ?? []) as typeof enviosConfig;
+        resenasList = (rs ?? []) as ResenaRow[];
       }
     }
   }
@@ -50,6 +85,10 @@ export default async function ProductoPage({ params }: Props) {
       direccion: emb?.direccion ?? "La Salada (demo)",
       envio_metodos: env ?? { retiro: true, correo: true, oca: false, andreani: false },
     };
+    enviosConfig = [
+      { metodo: "retiro", precio: 0, activo: true, tiempo_entrega: "Coordinar", descripcion: "Puesto" },
+      { metodo: "correo_argentino", precio: 4500, activo: true, tiempo_entrega: "3-7 d", descripcion: "Demo" },
+    ];
   }
 
   if (!producto || !tiendaRow) notFound();
@@ -81,8 +120,22 @@ export default async function ProductoPage({ params }: Props) {
       envio_metodos: t.envio_metodos,
     },
   };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.nombre,
+    image: p.fotos,
+    description: p.descripcion ?? undefined,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "ARS",
+      price: p.precio,
+      availability: p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+  };
   return (
     <main className="container-shell py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <nav className="mb-6 text-sm text-zinc-500">
         <Link href="/" className="hover:text-orange-400">
           Inicio
@@ -100,11 +153,11 @@ export default async function ProductoPage({ params }: Props) {
           <div className="relative h-12 w-12 overflow-hidden rounded-full border border-zinc-800">
             <Image src={t.logo_url} alt={t.nombre} fill className="object-cover" sizes="48px" />
           </div>
-          <p className="text-sm text-zinc-400">Tienda verificada en La Salada</p>
+          <p className="text-sm text-zinc-400">Tienda en La Salada</p>
         </div>
       )}
 
-      <ProductoDetalleClient producto={p} tienda={t} />
+      <ProductoDetalleClient producto={p} tienda={t} enviosConfig={enviosConfig} resenas={resenasList} />
     </main>
   );
 }

@@ -2,10 +2,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import type { Metadata } from "next";
 import { demoProducts, demoStores } from "@/lib/demo-data";
+import { getSiteUrl } from "@/lib/site-url";
 import type { Producto } from "@/lib/types";
 
 type Props = { params: { tienda: string } };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const u = getSiteUrl();
+  return {
+    title: `${params.tienda} | La Salada`,
+    openGraph: { type: "website", url: `${u}/${params.tienda}` },
+  };
+}
 
 export default async function TiendaPage({ params }: Props) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,8 +41,12 @@ export default async function TiendaPage({ params }: Props) {
     .order("destacado", { ascending: false })
     .order("created_at", { ascending: false });
 
-  const list = ((productos ?? []) as Producto[]).length
-    ? ((productos ?? []) as Producto[])
+  const rawList = (productos ?? []) as (Producto & { estado_publicacion?: string })[];
+  const filtered = rawList.length
+    ? rawList.filter((p) => (p as { estado_publicacion?: string }).estado_publicacion !== "borrador")
+    : [];
+  const list = filtered.length
+    ? filtered
     : demoProducts.filter((p) => p.tiendas?.slug === params.tienda);
   const viewStore =
     tienda ??

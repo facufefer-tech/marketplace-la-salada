@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import type { EnvioMetodos, Producto, Tienda } from "@/lib/types";
+import type { EnvioMetodos, Producto, ResenaRow, Tienda } from "@/lib/types";
 import { waMeHref } from "@/lib/whatsapp";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -25,12 +25,27 @@ function splitTokens(s: string | null) {
     .filter(Boolean);
 }
 
+const envioLabels: Record<string, string> = {
+  retiro: "Retiro en el puesto",
+  propio_feriante: "Envío propio",
+  correo_argentino: "Correo Argentino",
+  oca: "OCA",
+  andreani: "Andreani",
+  mercadoenvios: "MercadoEnvíos",
+};
+
 export function ProductoDetalleClient({
   producto: initial,
   tienda: t,
+  enviosConfig = [],
+  resenas: resenasIn = [],
+  productoId = initial.id,
 }: {
   producto: Producto;
   tienda: TiendaIn & Pick<Tienda, "direccion" | "whatsapp" | "instagram" | "envio_metodos">;
+  enviosConfig?: { metodo: string; precio: number; activo: boolean; tiempo_entrega: string | null; descripcion: string | null }[];
+  resenas?: ResenaRow[];
+  productoId?: string;
 }) {
   const router = useRouter();
   const add = useCartStore((s) => s.add);
@@ -47,6 +62,10 @@ export function ProductoDetalleClient({
   const [talle, setTalle] = useState(talles[0] ?? "Único");
   const [color, setColor] = useState(colores[0] ?? "Único");
   const [qty, setQty] = useState(1);
+  const [rnombre, setRnombre] = useState("");
+  const [rcom, setRcom] = useState("");
+  const [rest, setRest] = useState(5);
+  const [rmsg, setRmsg] = useState<string | null>(null);
   const slug = t.slug;
   const wa = waMeHref(t.whatsapp);
   const env = (t.envio_metodos as EnvioMetodos | null | undefined) ?? {
@@ -190,20 +209,103 @@ export function ProductoDetalleClient({
 
         <div className="rounded-2xl border border-zinc-800 bg-[#111] p-4">
           <p className="text-sm font-bold text-white">Envíos (esta tienda)</p>
-          <p className="mt-1 text-xs text-zinc-500">Cada feriante configura qué ofrece en su puesto.</p>
-          <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-            {labels.map(({ k, t: title, d }) =>
-              env[k] ? (
-                <li key={k} className="flex gap-2">
-                  <span className="text-orange-400">✓</span>
-                  <span>
-                    <strong className="text-zinc-100">{title}:</strong> {d}
-                  </span>
+          <p className="mt-1 text-xs text-zinc-500">Cada feriante configura precios y plazos en el panel.</p>
+          {enviosConfig.length > 0 ? (
+            <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+              {enviosConfig
+                .filter((e) => e.activo)
+                .map((e) => (
+                  <li key={e.metodo} className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span>
+                      {envioLabels[e.metodo] ?? e.metodo}
+                      {e.descripcion ? <span className="text-zinc-500"> — {e.descripcion}</span> : null}
+                    </span>
+                    <span className="font-bold text-white">
+                      {e.precio <= 0 ? "Gratis" : `$${e.precio.toLocaleString("es-AR")}`}
+                      {e.tiempo_entrega ? <span className="pl-1 text-xs font-normal text-zinc-500">({e.tiempo_entrega})</span> : null}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          ) : (
+            <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+              {labels.map(({ k, t: title, d }) =>
+                env[k] ? (
+                  <li key={k} className="flex gap-2">
+                    <span className="text-orange-400">✓</span>
+                    <span>
+                      <strong className="text-zinc-100">{title}:</strong> {d}
+                    </span>
+                  </li>
+                ) : null,
+              )}
+              {!Object.values(env).some(Boolean) && <li className="text-zinc-500">Consultá opciones al feriante.</li>}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-[#111] p-4">
+          <p className="text-sm font-bold text-white">Reseñas</p>
+          {resenasIn.length > 0 ? (
+            <ul className="mt-2 space-y-2 text-sm text-zinc-300">
+              {resenasIn.map((r) => (
+                <li key={r.id} className="border-b border-zinc-800 pb-2">
+                  <span className="text-amber-400">{"★".repeat(r.estrellas)}</span> <strong>{r.nombre}</strong>
+                  {r.comentario && <p className="mt-1 text-zinc-400">{r.comentario}</p>}
                 </li>
-              ) : null,
-            )}
-            {!Object.values(env).some(Boolean) && <li className="text-zinc-500">Consultá opciones al feriante.</li>}
-          </ul>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1 text-sm text-zinc-500">Todavía no hay reseñas aprobadas.</p>
+          )}
+          <p className="mb-1 mt-3 text-xs text-zinc-500">Dejá tu opinión (queda en moderación):</p>
+          <form
+            className="mt-1 space-y-2"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setRmsg(null);
+              const res = await fetch("/api/resenas", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  producto_id: productoId,
+                  nombre: rnombre,
+                  comentario: rcom,
+                  estrellas: rest,
+                }),
+              });
+              if (!res.ok) {
+                setRmsg("No se pudo enviar. ¿Ejecutaste el SQL fase 2?");
+                return;
+              }
+              setRmsg("Enviada. Un moderador la revisará pronto.");
+              setRnombre("");
+              setRcom("");
+            }}
+          >
+            <input
+              required
+              value={rnombre}
+              onChange={(e) => setRnombre(e.target.value)}
+              placeholder="Tu nombre"
+              className="w-full rounded border border-zinc-700 bg-black px-2 py-1 text-sm"
+            />
+            <div className="flex items-center gap-2 text-sm text-zinc-300">
+              <span>Estrellas</span>
+              <input type="number" min={1} max={5} value={rest} onChange={(e) => setRest(parseInt(e.target.value, 10) || 5)} className="w-16 rounded border border-zinc-700 bg-black px-1" />
+            </div>
+            <textarea
+              value={rcom}
+              onChange={(e) => setRcom(e.target.value)}
+              rows={2}
+              placeholder="Comentario (opcional)"
+              className="w-full rounded border border-zinc-700 bg-black px-2 py-1 text-sm"
+            />
+            <button type="submit" className="rounded bg-orange-500 px-3 py-1 text-sm font-bold text-black">
+              Enviar
+            </button>
+            {rmsg && <p className="text-xs text-emerald-400">{rmsg}</p>}
+          </form>
         </div>
 
         <div className="flex flex-col gap-2 border-t border-zinc-800 pt-4 sm:flex-row sm:items-center sm:justify-between">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { NewsletterWidget } from "@/components/marketing/NewsletterWidget";
 
 const cols = [
   {
@@ -27,7 +28,7 @@ const cols = [
 export function Footer() {
   return (
     <footer className="mt-14 border-t border-zinc-800 bg-[#0c0c0c]">
-      <div className="container-shell grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container-shell grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <div>
           <p className="text-2xl font-extrabold tracking-tight text-white">
             La <span className="text-orange-500">Salada</span>
@@ -50,6 +51,9 @@ export function Footer() {
             </ul>
           </div>
         ))}
+        <div>
+          <NewsletterWidget />
+        </div>
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wide text-white">Redes sociales</h3>
           <ul className="mt-3 space-y-2 text-sm text-zinc-400">

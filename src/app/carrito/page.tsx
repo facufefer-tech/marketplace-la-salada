@@ -2,17 +2,71 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCartStore } from "@/store/useCartStore";
 
+const METODOS: { id: string; label: string }[] = [
+  { id: "retiro", label: "Retiro en puesto" },
+  { id: "propio_feriante", label: "Envío propio" },
+  { id: "correo_argentino", label: "Correo Argentino" },
+  { id: "oca", label: "OCA" },
+  { id: "andreani", label: "Andreani" },
+  { id: "mercadoenvios", label: "MercadoEnvíos" },
+];
+
 export default function CarritoPage() {
-  const { lines, remove, setQty, total, clear } = useCartStore();
+  const { lines, remove, setQty, total, grandTotal, metodoEnvio, costoEnvio, setEnvio, descuento, cuponCodigo, setCupon, clearCupon, clear } =
+    useCartStore();
   const [msg, setMsg] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [envList, setEnvList] = useState<{ metodo: string; precio: number; activo: boolean; tiempo_entrega: string | null }[]>([]);
+  const tiendaId = lines[0]?.producto.tienda_id;
+  const sub = total();
+
+  useEffect(() => {
+    if (!tiendaId) {
+      setEnvList([]);
+      return;
+    }
+    void (async () => {
+      const res = await fetch(`/api/public/envios?tienda_id=${encodeURIComponent(tiendaId)}`);
+      const j = (await res.json()) as { data: typeof envList };
+      setEnvList(j.data ?? []);
+    })();
+  }, [tiendaId]);
+
+  const envOptions = useMemo(() => {
+    if (envList.length) {
+      return envList.filter((e) => e.activo);
+    }
+    return METODOS.map((m) => ({ metodo: m.id, precio: 0, activo: true, tiempo_entrega: null as string | null }));
+  }, [envList]);
+
+  useEffect(() => {
+    if (!envList.length) return;
+    const cur = envList.find((e) => e.metodo === metodoEnvio) || envList.find((e) => e.activo) || envList[0];
+    if (cur) setEnvio(cur.metodo, cur.precio);
+  }, [envList, metodoEnvio, setEnvio]);
+
+  async function applyCoupon() {
+    if (!code.trim() || !tiendaId) return;
+    const res = await fetch("/api/coupon/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codigo: code, tienda_id: tiendaId, subtotal: sub }),
+    });
+    const j = (await res.json()) as { ok?: boolean; descuento?: number; mensaje?: string };
+    if (j.ok && j.descuento != null) {
+      setCupon(code.trim().toLowerCase(), j.descuento);
+    } else {
+      setMsg(j.mensaje ?? "Código no válido");
+    }
+  }
 
   return (
     <main className="container-shell min-h-[70vh] py-8">
       <h1 className="text-3xl font-black text-white">Carrito</h1>
-      <p className="mt-1 text-sm text-zinc-500">Revisá productos, talles y totales.</p>
+      <p className="mt-1 text-sm text-zinc-500">Revisá productos, envío y cupones.</p>
 
       {lines.length === 0 ? (
         <p className="mt-8 text-zinc-500">
@@ -78,9 +132,63 @@ export default function CarritoPage() {
             })}
           </ul>
 
+          <div className="rounded-2xl border border-zinc-800 bg-[#111] p-5">
+            <p className="text-sm font-bold text-white">Método de envío (misma tienda)</p>
+            <div className="mt-2 space-y-1">
+              {envOptions.map((e) => (
+                <label key={e.metodo} className="flex cursor-pointer items-center justify-between gap-2 rounded border border-zinc-800 px-2 py-1.5 text-sm text-zinc-200">
+                  <input
+                    type="radio"
+                    name="env"
+                    checked={metodoEnvio === e.metodo}
+                    onChange={() => setEnvio(e.metodo, e.precio)}
+                    className="mr-1"
+                  />
+                  <span className="flex-1">
+                    {METODOS.find((m) => m.id === e.metodo)?.label ?? e.metodo}
+                    {e.tiempo_entrega ? <span className="text-zinc-500"> — {e.tiempo_entrega}</span> : null}
+                  </span>
+                  <span className="font-mono text-orange-300">
+                    {e.precio <= 0 ? "Gratis" : `+$${e.precio.toLocaleString("es-AR")}`}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-[#111] p-5">
+            <p className="text-sm font-bold text-white">Código de descuento</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="min-w-[180px] flex-1 rounded border border-zinc-700 bg-black px-2 py-1.5 text-sm"
+                placeholder="Código"
+              />
+              <button
+                type="button"
+                onClick={() => void applyCoupon()}
+                className="rounded bg-zinc-700 px-3 py-1.5 text-sm text-white"
+              >
+                Aplicar
+              </button>
+              {cuponCodigo && (
+                <button type="button" onClick={() => clearCupon()} className="text-xs text-zinc-500 underline">
+                  Quitar cupón
+                </button>
+              )}
+            </div>
+            {msg && <p className="mt-1 text-xs text-amber-300">{msg}</p>}
+            {descuento > 0 && <p className="mt-1 text-sm text-emerald-400">Descuento: -${descuento.toLocaleString("es-AR")}</p>}
+          </div>
+
           <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-[#111] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-zinc-400">
+              <p>Subtotal: ${sub.toLocaleString("es-AR")}</p>
+              <p>Envío: {costoEnvio <= 0 ? "Gratis" : `$${costoEnvio.toLocaleString("es-AR")}`}</p>
+            </div>
             <p className="text-lg text-zinc-300">
-              Total: <span className="text-2xl font-black text-white">${total().toLocaleString("es-AR")}</span>
+              Total: <span className="text-2xl font-black text-white">${grandTotal().toLocaleString("es-AR")}</span>
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <button
@@ -101,7 +209,6 @@ export default function CarritoPage() {
               </button>
             </div>
           </div>
-          {msg && <p className="text-center text-sm text-amber-300">{msg}</p>}
         </div>
       )}
     </main>

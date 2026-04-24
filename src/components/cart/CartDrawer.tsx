@@ -15,7 +15,7 @@ function itemTitle(nombre: string, talle: string, color: string) {
 }
 
 export function CartDrawer({ open, onClose }: Props) {
-  const { lines, remove, setQty, clear, total } = useCartStore();
+  const { lines, remove, setQty, clear, total, grandTotal, costoEnvio, descuento, metodoEnvio } = useCartStore();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -153,7 +153,16 @@ export function CartDrawer({ open, onClose }: Props) {
               />
             </label>
             <p className="text-sm text-zinc-300">
-              Total: <span className="font-bold text-white">${total().toLocaleString("es-AR")}</span>
+              Subtotal: <span className="text-zinc-200">${total().toLocaleString("es-AR")}</span>
+            </p>
+            {descuento > 0 && (
+              <p className="text-sm text-emerald-400">Descuento: -${descuento.toLocaleString("es-AR")}</p>
+            )}
+            <p className="text-xs text-zinc-500">
+              Envío ({metodoEnvio}): {costoEnvio <= 0 ? "incl. gratis" : `$${costoEnvio.toLocaleString("es-AR")}`} — ajustá en /carrito
+            </p>
+            <p className="text-sm text-zinc-300">
+              Total: <span className="font-bold text-white">${grandTotal().toLocaleString("es-AR")}</span>
             </p>
             <p className="text-xs text-zinc-500">Comisión marketplace ~5% (split Mercado Pago). Una tienda por compra.</p>
             {err && <p className="text-sm text-rose-400">{err}</p>}

@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { EnviosConfigForm } from "@/components/dashboard/EnviosConfigForm";
 import type { EnvioMetodos, Tienda } from "@/lib/types";
 
 const CloudinaryBtn = dynamic(
@@ -25,11 +26,23 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
   const [direccion, setDireccion] = useState(initial?.direccion ?? "");
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
   const [bannerUrl, setBannerUrl] = useState(initial?.banner_url ?? "");
+  const [facebook, setFacebook] = useState(initial?.facebook ?? "");
+  const [tiktok, setTiktok] = useState(initial?.tiktok ?? "");
+  const [horarios, setHorarios] = useState(initial?.horarios ?? "");
+  const [miHistoria, setMiHistoria] = useState(initial?.mi_historia ?? "");
+  const [historiaFoto, setHistoriaFoto] = useState(initial?.historia_foto_url ?? "");
+  const [colorPrimario, setColorPrimario] = useState(initial?.color_primario ?? "#f97316");
+  const [bannerText, setBannerText] = useState(initial?.banner_text ?? "");
+  const [descripcionHtml, setDescripcionHtml] = useState(initial?.descripcion_html ?? "");
   const [envio, setEnvio] = useState<EnvioMetodos>(
     (initial?.envio_metodos as EnvioMetodos) ?? defaultEnvio,
   );
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [origin, setOrigin] = useState(typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || ""));
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const slugFinal = useMemo(() => {
     const s = slug.trim() || nombre.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -48,8 +61,16 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
           nombre: nombre.trim(),
           slug: slugFinal,
           descripcion: descripcion.trim() || null,
+          descripcion_html: descripcionHtml.trim() || null,
           whatsapp: whatsapp.trim() || null,
           instagram: instagram.trim() || null,
+          facebook: facebook.trim() || null,
+          tiktok: tiktok.trim() || null,
+          horarios: horarios.trim() || null,
+          mi_historia: miHistoria.trim() || null,
+          historia_foto_url: historiaFoto.trim() || null,
+          color_primario: colorPrimario,
+          banner_text: bannerText.trim() || null,
           direccion: direccion.trim() || null,
           logo_url: logoUrl.trim() || null,
           banner_url: bannerUrl.trim() || null,
@@ -73,6 +94,8 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
   }
 
   return (
+    <div className="space-y-6">
+    <div className="grid gap-8 lg:grid-cols-2">
     <form onSubmit={save} className="max-w-2xl space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-2">
@@ -94,13 +117,74 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
           />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm font-medium text-zinc-700">Descripción</span>
+          <span className="text-sm font-medium text-zinc-700">Descripción corta</span>
           <textarea
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             rows={3}
             className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2"
           />
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="text-sm font-medium text-zinc-700">Texto con formato básico (HTML permitido)</span>
+          <textarea
+            value={descripcionHtml}
+            onChange={(e) => setDescripcionHtml(e.target.value)}
+            rows={4}
+            className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-sm"
+            placeholder="<p><b>Negrita</b>, listas...</p>"
+          />
+        </label>
+        <label>
+          <span className="text-sm font-medium text-zinc-700">Texto en banner</span>
+          <input
+            value={bannerText}
+            onChange={(e) => setBannerText(e.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2"
+            placeholder="Ej: 2x1 en remeras hoy"
+          />
+        </label>
+        <label>
+          <span className="text-sm font-medium text-zinc-700">Color principal</span>
+          <input
+            type="color"
+            value={colorPrimario}
+            onChange={(e) => setColorPrimario(e.target.value)}
+            className="mt-1.5 h-10 w-20 cursor-pointer rounded border"
+          />
+        </label>
+        <label>
+          <span className="text-sm font-medium text-zinc-700">Facebook</span>
+          <input value={facebook} onChange={(e) => setFacebook(e.target.value)} className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2" />
+        </label>
+        <label>
+          <span className="text-sm font-medium text-zinc-700">TikTok</span>
+          <input value={tiktok} onChange={(e) => setTiktok(e.target.value)} className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2" />
+        </label>
+        <label className="sm:col-span-2">
+          <span className="text-sm font-medium text-zinc-700">Horarios de atención</span>
+          <input
+            value={horarios}
+            onChange={(e) => setHorarios(e.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2"
+            placeholder="Lun a Dom 8 a 20h"
+          />
+        </label>
+        <label className="sm:col-span-2">
+          <span className="text-sm font-medium text-zinc-700">Mi historia</span>
+          <textarea
+            value={miHistoria}
+            onChange={(e) => setMiHistoria(e.target.value)}
+            rows={4}
+            className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2"
+          />
+        </label>
+        <label className="sm:col-span-2">
+          <span className="text-sm font-medium text-zinc-700">Foto del equipo (URL o Cloudinary)</span>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <input value={historiaFoto} onChange={(e) => setHistoriaFoto(e.target.value)} className="min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2" />
+            <CloudinaryBtn label="Subir" onUploaded={(u) => setHistoriaFoto(u)} />
+          </div>
         </label>
         <label className="block">
           <span className="text-sm font-medium text-zinc-700">WhatsApp</span>
@@ -194,5 +278,27 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
         {saving ? "Guardando…" : "Guardar en la nube"}
       </button>
     </form>
+    <div className="min-h-[320px] space-y-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+      <h3 className="text-sm font-bold text-zinc-900">Vista previa (tienda pública)</h3>
+      <p className="text-xs text-zinc-500">Actualizá y guardá; recargá el iframe para ver cambios en banner/logo.</p>
+      {origin ? (
+        <iframe
+          title="preview"
+          className="h-[420px] w-full rounded-xl border border-zinc-200 bg-white"
+          src={`${origin}/${slugFinal}`}
+        />
+      ) : null}
+      <a
+        href={`/${slugFinal}`}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-block rounded-lg bg-orange-500 px-4 py-2 text-sm font-bold text-white"
+      >
+        Ver mi tienda pública
+      </a>
+    </div>
+    </div>
+    <EnviosConfigForm />
+    </div>
   );
 }

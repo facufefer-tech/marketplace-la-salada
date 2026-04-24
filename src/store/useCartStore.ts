@@ -18,11 +18,19 @@ type AddOpts = { cantidad?: number; talle?: string; color?: string };
 
 type CartState = {
   lines: CartLine[];
+  metodoEnvio: string;
+  costoEnvio: number;
+  descuento: number;
+  cuponCodigo: string;
   add: (producto: Producto, opts?: AddOpts) => void;
   remove: (lineId: string) => void;
   setQty: (lineId: string, cantidad: number) => void;
+  setEnvio: (metodo: string, costo: number) => void;
+  setCupon: (codigo: string, desc: number) => void;
+  clearCupon: () => void;
   clear: () => void;
   total: () => number;
+  grandTotal: () => number;
   count: () => number;
 };
 
@@ -40,6 +48,10 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       lines: [],
+      metodoEnvio: "retiro",
+      costoEnvio: 0,
+      descuento: 0,
+      cuponCodigo: "",
       add: (producto, opts) => {
         const cantidad = Math.max(1, opts?.cantidad ?? 1);
         const talle = (opts?.talle ?? defaultTalle(producto)).trim() || "Único";
@@ -72,11 +84,19 @@ export const useCartStore = create<CartState>()(
             };
           }),
         })),
-      clear: () => set({ lines: [] }),
-      total: () =>
-        get().lines.reduce((acc, l) => acc + Number(l.producto.precio) * l.cantidad, 0),
+      setEnvio: (metodo, costo) => set({ metodoEnvio: metodo, costoEnvio: Math.max(0, costo) }),
+      setCupon: (codigo, desc) => set({ cuponCodigo: codigo, descuento: Math.max(0, desc) }),
+      clearCupon: () => set({ cuponCodigo: "", descuento: 0 }),
+      clear: () =>
+        set({ lines: [], metodoEnvio: "retiro", costoEnvio: 0, descuento: 0, cuponCodigo: "" }),
+      total: () => get().lines.reduce((acc, l) => acc + Number(l.producto.precio) * l.cantidad, 0),
+      grandTotal: () => {
+        const s = get();
+        const sub = s.lines.reduce((acc, l) => acc + Number(l.producto.precio) * l.cantidad, 0);
+        return Math.max(0, sub - s.descuento + s.costoEnvio);
+      },
       count: () => get().lines.reduce((acc, l) => acc + l.cantidad, 0),
     }),
-    { name: "la-salada-cart-v2" },
+    { name: "la-salada-cart-v3" },
   ),
 );

@@ -41,6 +41,77 @@ async function getMyTiendaId(supabase: ReturnType<typeof createSupabaseRouteClie
   return { user, tiendaId: data?.id ?? null };
 }
 
+type VariantIn = {
+  talle?: string;
+  color?: string;
+  stock?: number;
+  precio_extra?: number;
+  precio_override?: number | string | null;
+  sku?: string | null;
+  activo?: boolean;
+};
+
+function parsePrecioOverride(x: unknown): number | null {
+  if (x == null) return null;
+  if (typeof x === "string" && !x.trim()) return null;
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
+async function syncVariants(
+  supabase: ReturnType<typeof createSupabaseRouteClient>,
+  productoId: string,
+  variants: unknown,
+) {
+  if (!Array.isArray(variants)) return;
+  await supabase.from("product_variants").delete().eq("producto_id", productoId);
+  const rows = (variants as VariantIn[]).map((v) => ({
+    producto_id: productoId,
+    talle: String(v.talle ?? "Único"),
+    color: String(v.color ?? "Único"),
+    stock: Math.max(0, Number(v.stock ?? 0)),
+    precio_extra: Number(v.precio_extra ?? 0),
+    precio_override: parsePrecioOverride(v.precio_override),
+    sku: v.sku ? String(v.sku) : null,
+    activo: v.activo !== false,
+  }));
+  if (!rows.length) return;
+  const { error } = await supabase.from("product_variants").insert(rows);
+  if (error) throw new Error(error.message);
+  const sumStock = rows.reduce((a, r) => a + r.stock, 0);
+  await supabase.from("productos").update({ stock: sumStock }).eq("id", productoId);
+}
+
+function baseProductFromBody(body: Record<string, unknown>) {
+  const fotos = (Array.isArray(body.fotos) ? (body.fotos as string[]) : []).filter(Boolean).slice(0, 8);
+  const idx = body.foto_principal_index != null ? Math.min(7, Math.max(0, Number(body.foto_principal_index))) : 0;
+  return {
+    nombre: String(body.nombre ?? ""),
+    descripcion: (body.descripcion as string) ?? null,
+    precio: Number(body.precio ?? 0),
+    precio_lista: body.precio_lista != null ? Number(body.precio_lista) : null,
+    marca: (body.marca as string) ?? null,
+    sku: body.sku != null ? String(body.sku) : null,
+    categoria: (body.categoria as string) ?? null,
+    talle: (body.talle as string) ?? null,
+    color: (body.color as string) ?? null,
+    stock: Number(body.stock ?? 0),
+    peso_gramos: body.peso_gramos != null ? Number(body.peso_gramos) : null,
+    material: body.material != null ? String(body.material) : null,
+    genero: body.genero != null ? String(body.genero) : null,
+    temporada: body.temporada != null ? String(body.temporada) : null,
+    etiquetas: Array.isArray(body.etiquetas) ? (body.etiquetas as string[]) : null,
+    seo_titulo: body.seo_titulo != null ? String(body.seo_titulo) : null,
+    seo_descripcion: body.seo_descripcion != null ? String(body.seo_descripcion) : null,
+    estado_publicacion:
+      typeof body.estado_publicacion === "string" ? String(body.estado_publicacion) : "publicado",
+    foto_principal_index: idx,
+    fotos,
+    activo: body.activo !== false,
+    destacado: Boolean(body.destacado),
+  };
+}
+
 export async function GET() {
   const supabase = createSupabaseRouteClient();
   const { user, tiendaId } = await getMyTiendaId(supabase);
@@ -68,24 +139,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const insert = {
-    nombre: String(body.nombre ?? ""),
-    descripcion: (body.descripcion as string) ?? null,
-    precio: Number(body.precio ?? 0),
-    precio_lista: body.precio_lista != null ? Number(body.precio_lista) : null,
-    marca: (body.marca as string) ?? null,
-    categoria: (body.categoria as string) ?? null,
-    talle: (body.talle as string) ?? null,
-    color: (body.color as string) ?? null,
-    stock: Number(body.stock ?? 0),
-    fotos: (Array.isArray(body.fotos) ? body.fotos : []) as string[],
-    activo: body.activo !== false,
-    destacado: Boolean(body.destacado),
-  };
-
+  const insert = baseProductFromBody(body);
   if (!insert.nombre) {
     return NextResponse.json({ error: "nombre requerido" }, { status: 400 });
   }
+
+  const variants = body.variants;
 
   if (user && tiendaId) {
     const { data, error } = await supabase
@@ -94,14 +153,22 @@ export async function POST(req: NextRequest) {
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ data });
+    if (data?.id) {
+      try {
+        await syncVariants(supabase, data.id, variants);
+      } catch (e) {
+        const m = e instanceof Error ? e.message : "Error variantes";
+        return NextResponse.json({ error: m, data }, { status: 500 });
+      }
+    }
+    const { data: fresh } = await supabase.from("productos").select("*").eq("id", data.id).single();
+    return NextResponse.json({ data: fresh ?? data });
   }
 
   if (user && !tiendaId) {
     return NextResponse.json({ error: "Primero completá el onboarding de tienda" }, { status: 400 });
   }
 
-  // Sin login: carga de prueba en tienda demo (temporal, mismo criterio que ruta pública)
   let demoTiendaId: string;
   try {
     demoTiendaId = await getOrCreateDemoTiendaId();
@@ -139,26 +206,47 @@ export async function PUT(req: NextRequest) {
   const { data: row } = await supabase.from("productos").select("id").eq("id", id).eq("tienda_id", tiendaId).maybeSingle();
   if (!row) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
-  const patch = {
-    nombre: body.nombre != null ? String(body.nombre) : undefined,
-    descripcion: body.descripcion as string | null | undefined,
-    precio: body.precio != null ? Number(body.precio) : undefined,
-    precio_lista: body.precio_lista != null ? Number(body.precio_lista) : undefined,
-    marca: body.marca as string | null | undefined,
-    categoria: body.categoria as string | null | undefined,
-    talle: body.talle as string | null | undefined,
-    color: body.color as string | null | undefined,
-    stock: body.stock != null ? Number(body.stock) : undefined,
-    fotos: Array.isArray(body.fotos) ? (body.fotos as string[]) : undefined,
-    activo: typeof body.activo === "boolean" ? body.activo : undefined,
-    destacado: typeof body.destacado === "boolean" ? body.destacado : undefined,
+  const b = baseProductFromBody(body);
+  const patch: Record<string, unknown> = {
+    nombre: b.nombre,
+    descripcion: b.descripcion,
+    precio: b.precio,
+    precio_lista: b.precio_lista,
+    marca: b.marca,
+    sku: b.sku,
+    categoria: b.categoria,
+    talle: b.talle,
+    color: b.color,
+    stock: b.stock,
+    peso_gramos: b.peso_gramos,
+    material: b.material,
+    genero: b.genero,
+    temporada: b.temporada,
+    etiquetas: b.etiquetas,
+    seo_titulo: b.seo_titulo,
+    seo_descripcion: b.seo_descripcion,
+    estado_publicacion: b.estado_publicacion,
+    foto_principal_index: b.foto_principal_index,
+    fotos: b.fotos,
+    activo: b.activo,
+    destacado: b.destacado,
   };
-
-  const cleaned = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+  const cleaned = Object.fromEntries(
+    Object.entries(patch).filter(([, v]) => v !== undefined),
+  ) as Record<string, unknown>;
 
   const { data, error } = await supabase.from("productos").update(cleaned).eq("id", id).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ data });
+  if (Object.prototype.hasOwnProperty.call(body, "variants")) {
+    try {
+      await syncVariants(supabase, id, body.variants);
+    } catch (e) {
+      const m = e instanceof Error ? e.message : "Error variantes";
+      return NextResponse.json({ error: m, data }, { status: 500 });
+    }
+  }
+  const { data: fresh } = await supabase.from("productos").select("*").eq("id", id).single();
+  return NextResponse.json({ data: fresh ?? data });
 }
 
 export async function DELETE(req: NextRequest) {
