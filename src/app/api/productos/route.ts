@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
     let q = supabase
       .from("productos")
-      .select("*, tiendas:tienda_id(nombre,slug)")
+      .select("*")
       .eq("activo", true)
       .order("created_at", { ascending: false })
       .limit(40);
@@ -19,8 +19,24 @@ export async function GET(req: NextRequest) {
     }
 
     const { data } = await q;
-    const rows = (data ?? []).map((r) => {
-      const t = (r as { tiendas?: { nombre?: string; slug?: string } | null }).tiendas;
+    const baseRows = (data ?? []) as Array<{ tienda_id?: string | null } & Record<string, unknown>>;
+    const tiendaIds = Array.from(
+      new Set(baseRows.map((r) => r.tienda_id).filter((x): x is string => Boolean(x))),
+    );
+    const tiendasById = new Map<string, { slug: string | null; nombre: string | null }>();
+    if (tiendaIds.length) {
+      const { data: tiendas } = await supabase
+        .from("tiendas")
+        .select("id,slug,nombre")
+        .in("id", tiendaIds);
+      (tiendas ?? []).forEach((t) => {
+        const row = t as { id: string; slug: string | null; nombre: string | null };
+        tiendasById.set(row.id, { slug: row.slug, nombre: row.nombre });
+      });
+    }
+
+    const rows = baseRows.map((r) => {
+      const t = r.tienda_id ? tiendasById.get(r.tienda_id) : null;
       return {
         ...r,
         tienda_nombre: t?.nombre ?? null,

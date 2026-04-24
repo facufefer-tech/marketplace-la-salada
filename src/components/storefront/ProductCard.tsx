@@ -7,7 +7,12 @@ import { showToast } from "@/lib/toast";
 import type { Producto } from "@/lib/types";
 import { useCartStore } from "@/store/useCartStore";
 
-type UIProduct = Producto & { precioOriginal?: number; descuentoPct?: number; nuevo?: boolean };
+type UIProduct = Producto & {
+  precioOriginal?: number;
+  descuentoPct?: number;
+  nuevo?: boolean;
+  tienda_slug?: string | null;
+};
 
 function pct(p: UIProduct) {
   if (p.descuentoPct != null) return p.descuentoPct;
@@ -20,7 +25,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
   const add = useCartStore((s) => s.add);
   const [fav, setFav] = useState(false);
   const isDemo = String(producto.id).startsWith("demo-");
-  const slug = producto.tiendas?.slug ?? (isDemo ? "moda-la-salada-demo" : "tienda");
+  const slug = producto.tienda_slug ?? producto.tiendas?.slug ?? (isDemo ? "moda-la-salada-demo" : "tienda");
   const href = `/${slug}/producto/${producto.id}`;
   const desc = pct(producto);
   const lista = producto.precio_lista ?? producto.precioOriginal;
