@@ -24,7 +24,7 @@ export default function HomePage() {
             Comprá directo a los feriantes. Ropa mayorista y minorista con envío a todo el país.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/?focus=search" className="rounded-xl bg-[#FF6B00] px-6 py-3 font-bold text-white hover:bg-[#E05A00]">
+            <Link href="/?focus=search" className="rounded-xl bg-[#F97316] px-6 py-3 font-bold text-white hover:bg-[#EA6C0A]">
               Ver productos
             </Link>
             <Link href="/para-feriantes" className="rounded-xl border border-white/60 px-6 py-3 font-bold text-white hover:border-white">
@@ -42,9 +42,9 @@ export default function HomePage() {
               <Link
                 key={`${s.id}-${i}`}
                 href={`/${s.slug}`}
-                className="fade-in inline-flex min-w-max items-center gap-2 rounded-full border border-[#E0E0E0] bg-white px-4 py-2 text-sm text-[#1A1A1A] hover:border-[#FF6B00]"
+                className="fade-in inline-flex min-w-max items-center gap-2 rounded-full border border-[#E0E0E0] bg-white px-4 py-2 text-sm text-[#1A1A1A] hover:border-[#F97316]"
               >
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#FF6B00] text-xs font-black text-white">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#F97316] text-xs font-black text-white">
                   {s.nombre.slice(0, 1)}
                 </span>
                 {s.nombre}
@@ -58,16 +58,16 @@ export default function HomePage() {
         <section className="rounded-2xl border border-[#E0E0E0] bg-white p-5 md:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-2xl font-black text-[#1A1A1A]">Lo más vendido esta semana</h2>
-            <Link href="/" className="text-sm text-[#FF6B00] hover:underline">
+            <Link href="/" className="text-sm text-[#F97316] hover:underline">
               Ver todo
             </Link>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {bestSellers.map((p, idx) => (
-              <Link key={p.id} href={`/${p.tiendas?.slug}/producto/${p.id}`} className="rounded-xl border border-[#E0E0E0] p-3 hover:border-[#FF6B00]/60">
+              <Link key={p.id} href={`/${p.tiendas?.slug}/producto/${p.id}`} className="rounded-xl border border-[#E0E0E0] p-3 hover:border-[#F97316]/60">
                 <p className="line-clamp-1 text-sm font-bold text-[#1A1A1A]">{p.nombre}</p>
                 <p className="text-xs text-[#555555]">{p.marca}</p>
-                <p className="mt-2 text-lg font-black text-[#FF6B00]">${p.precio.toLocaleString("es-AR")}</p>
+                <p className="mt-2 text-lg font-black text-[#F97316]">${p.precio.toLocaleString("es-AR")}</p>
                 <p className="mt-1 text-xs text-[#555555]">👕 Precio mayorista desde ${Math.round(p.precio * 0.82).toLocaleString("es-AR")}</p>
                 <p className="mt-1 text-xs text-[#555555]">{idx % 2 === 0 ? "Correo Argentino disponible" : "Retiro en feria y envío"}</p>
               </Link>
@@ -75,10 +75,10 @@ export default function HomePage() {
           </div>
         </section>
         <section className="rounded-2xl border border-[#E0E0E0] bg-[#F5F5F5] p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E05A00]">Ofertas que terminan hoy</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#EA6C0A]">Ofertas que terminan hoy</p>
           <p className="mt-3 text-3xl font-black text-[#1A1A1A]"><CountdownClock /></p>
           <p className="mt-2 text-sm text-[#555555]">Aprovechá descuentos de hasta 60% en tiendas seleccionadas.</p>
-          <Link href="/?descuento=1" className="mt-6 inline-block rounded-xl bg-[#FF6B00] px-4 py-2 text-sm font-black text-white hover:bg-[#E05A00]">
+          <Link href="/?descuento=1" className="mt-6 inline-block rounded-xl bg-[#F97316] px-4 py-2 text-sm font-black text-white hover:bg-[#EA6C0A]">
             Ver ofertas
           </Link>
         </section>
@@ -124,7 +124,7 @@ export default function HomePage() {
         <h2 className="mb-4 text-2xl font-black text-[#1A1A1A]">Ofertas fuertes del día</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {ofertas.map((p) => (
-            <Link key={p.id} href={`/${p.tiendas?.slug}/producto/${p.id}`} className="rounded-xl border border-[#E0E0E0] bg-white p-3 hover:border-[#FF6B00]">
+            <Link key={p.id} href={`/${p.tiendas?.slug}/producto/${p.id}`} className="rounded-xl border border-[#E0E0E0] bg-white p-3 hover:border-[#F97316]">
               <p className="line-clamp-1 text-sm font-bold text-[#1A1A1A]">{p.nombre}</p>
               <p className="mt-1 text-xs text-[#555555]">-{p.descuentoPct}% OFF</p>
             </Link>

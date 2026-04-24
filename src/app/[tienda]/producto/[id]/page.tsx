@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { ProductoDetalleClient } from "@/components/product/ProductoDetalleClient";
@@ -9,6 +8,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import type { EnvioMetodos, Producto, ResenaRow, Tienda } from "@/lib/types";
 
 type Props = { params: { tienda: string; id: string } };
+export const revalidate = 0;
 
 type TiendaRow = Pick<Tienda, "slug" | "nombre" | "logo_url" | "whatsapp" | "instagram" | "direccion" | "envio_metodos">;
 
@@ -102,7 +102,26 @@ export default async function ProductoPage({ params }: Props) {
     similares = demoProducts.filter((x) => x.categoria === demoP.categoria && x.id !== demoP.id).slice(0, 4);
   }
 
-  if (!producto || !tiendaRow) notFound();
+  if (!producto || !tiendaRow) {
+    return (
+      <main className="container-shell py-10">
+        <section className="rounded-2xl border border-[#E0E0E0] bg-white p-8 text-center">
+          <h1 className="text-3xl font-black text-[#1A1A1A]">Producto no encontrado</h1>
+          <p className="mt-2 text-[#555555]">
+            Este producto no está disponible o fue dado de baja. Podés seguir comprando en la tienda.
+          </p>
+          <div className="mt-5 flex justify-center gap-3">
+            <Link href={`/${params.tienda}`} className="rounded-xl bg-[#F97316] px-4 py-2 font-bold text-white">
+              Volver a la tienda
+            </Link>
+            <Link href="/" className="rounded-xl border border-[#E0E0E0] px-4 py-2 font-bold text-[#1A1A1A]">
+              Ir al inicio
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   const row = producto as Producto & { tienda_id: string; destacado?: boolean };
   const t = tiendaRow;

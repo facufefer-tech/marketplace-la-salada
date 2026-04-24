@@ -10,6 +10,7 @@ const nav = [
   { href: "/dashboard/promociones", label: "Promociones" },
   { href: "/dashboard/pedidos", label: "Pedidos" },
   { href: "/dashboard/tienda", label: "Mi tienda" },
+  { href: "/dashboard/perfil", label: "Perfil" },
   { href: "/dashboard/resenas", label: "Reseñas" },
   { href: "/dashboard/estadisticas", label: "Estadísticas" },
 ];

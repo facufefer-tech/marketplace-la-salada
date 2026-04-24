@@ -16,6 +16,7 @@ export type DemoProduct = Producto & {
   precioOriginal: number;
   descuentoPct: number;
   nuevo: boolean;
+  precio_mayorista?: number;
 };
 
 const imagenesMercado = [
@@ -45,92 +46,31 @@ export const demoStores: DemoStore[] = [
   { id: "s15", slug: "outlet-express", nombre: "Outlet Flash", descripcion: "Saldos y oportunidades.", owner: "Noelia Páez", avatarUrl: "https://i.pravatar.cc/150?img=44", bannerUrl: imagenesMercado[5], rating: 4.5, ventasMes: 289 },
 ];
 
-const talles = ["XS", "S", "M", "L", "XL", "XXL"];
-const colores = ["Negro", "Blanco", "Azul", "Rojo", "Verde", "Gris", "Beige"];
+const catalogItems = [
+  { nombre: "Remera básica blanca", categoria: "Remeras", foto: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400", descripcion: "Algodón suave, corte clásico para venta minorista y mayorista.", precio: 12000, precioMayorista: 9500, talle: "S, M, L, XL", color: "Blanco", stock: 26 },
+  { nombre: "Remera negra cuello redondo", categoria: "Remeras", foto: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400", descripcion: "Modelo urbano de alta rotación en feria.", precio: 13500, precioMayorista: 10500, talle: "M, L, XL", color: "Negro", stock: 22 },
+  { nombre: "Remera estampada urbana", categoria: "Remeras", foto: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", descripcion: "Estampa frontal para público joven.", precio: 14800, precioMayorista: 11600, talle: "S, M, L", color: "Gris", stock: 19 },
+  { nombre: "Remera oversize", categoria: "Remeras", foto: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400", descripcion: "Calce amplio, tendencia oversize.", precio: 15500, precioMayorista: 12400, talle: "M, L, XL", color: "Beige", stock: 17 },
 
-const photoByCategory: Record<string, string[]> = {
-  Remeras: [
-    imagenesMercado[0],
-    imagenesMercado[2],
-  ],
-  Pantalones: [
-    imagenesMercado[3],
-    imagenesMercado[1],
-  ],
-  Vestidos: [
-    imagenesMercado[4],
-    imagenesMercado[5],
-  ],
-  Calzado: [
-    imagenesMercado[1],
-    imagenesMercado[2],
-  ],
-  Accesorios: [
-    imagenesMercado[5],
-    imagenesMercado[3],
-  ],
-  Abrigos: [
-    imagenesMercado[4],
-    imagenesMercado[0],
-  ],
-  Deportivo: [
-    imagenesMercado[2],
-    imagenesMercado[1],
-  ],
-};
+  { nombre: "Jean recto clásico", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400", descripcion: "Denim resistente y tiro medio.", precio: 28500, precioMayorista: 23500, talle: "38, 40, 42, 44", color: "Azul", stock: 18 },
+  { nombre: "Jean skinny", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1555689502-c4b22d76c56f?w=400", descripcion: "Jean elastizado con ajuste slim.", precio: 27900, precioMayorista: 22900, talle: "36, 38, 40, 42", color: "Azul oscuro", stock: 14 },
+  { nombre: "Pantalón cargo", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400", descripcion: "Bolsillos laterales, estilo urbano.", precio: 31000, precioMayorista: 25800, talle: "M, L, XL", color: "Verde oliva", stock: 16 },
+  { nombre: "Jogging deportivo", categoria: "Pantalones", foto: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400", descripcion: "Frisa liviana para uso diario.", precio: 21000, precioMayorista: 17000, talle: "S, M, L, XL", color: "Gris", stock: 24 },
 
-const catalogItems: Array<{ nombre: string; categoria: keyof typeof photoByCategory }> = [
-  { nombre: "Remera oversize estampada", categoria: "Remeras" },
-  { nombre: "Remera básica cuello redondo", categoria: "Remeras" },
-  { nombre: "Top crop rib slim", categoria: "Remeras" },
-  { nombre: "Musculosa algodón premium", categoria: "Remeras" },
-  { nombre: "Remera boxy manga corta", categoria: "Remeras" },
-  { nombre: "Jean mom tiro alto", categoria: "Pantalones" },
-  { nombre: "Jean recto clásico", categoria: "Pantalones" },
-  { nombre: "Pantalón cargo gabardina", categoria: "Pantalones" },
-  { nombre: "Jogger frisa premium", categoria: "Pantalones" },
-  { nombre: "Pantalón sastrero wide leg", categoria: "Pantalones" },
-  { nombre: "Vestido midi floreado", categoria: "Vestidos" },
-  { nombre: "Vestido satén fiesta", categoria: "Vestidos" },
-  { nombre: "Vestido largo escote V", categoria: "Vestidos" },
-  { nombre: "Vestido camisero lino", categoria: "Vestidos" },
-  { nombre: "Vestido casual de punto", categoria: "Vestidos" },
-  { nombre: "Zapatilla urbana cuero", categoria: "Calzado" },
-  { nombre: "Sandalia plataforma", categoria: "Calzado" },
-  { nombre: "Botita caña corta", categoria: "Calzado" },
-  { nombre: "Zapatilla running liviana", categoria: "Calzado" },
-  { nombre: "Mocasín urbano flexible", categoria: "Calzado" },
-  { nombre: "Riñonera premium", categoria: "Accesorios" },
-  { nombre: "Cartera bandolera mini", categoria: "Accesorios" },
-  { nombre: "Mochila urbana reforzada", categoria: "Accesorios" },
-  { nombre: "Cinturón cuero ecológico", categoria: "Accesorios" },
-  { nombre: "Lentes de sol retro", categoria: "Accesorios" },
-  { nombre: "Campera puffer corta", categoria: "Abrigos" },
-  { nombre: "Abrigo paño largo", categoria: "Abrigos" },
-  { nombre: "Tapado lana premium", categoria: "Abrigos" },
-  { nombre: "Campera bomber clásica", categoria: "Abrigos" },
-  { nombre: "Piloto impermeable", categoria: "Abrigos" },
-  { nombre: "Calza deportiva compresión", categoria: "Deportivo" },
-  { nombre: "Conjunto deportivo dry-fit", categoria: "Deportivo" },
-  { nombre: "Musculosa training", categoria: "Deportivo" },
-  { nombre: "Buzo deportivo cierre medio", categoria: "Deportivo" },
-  { nombre: "Short running técnico", categoria: "Deportivo" },
-  { nombre: "Remera básica lisa", categoria: "Remeras" },
-  { nombre: "Remera manga larga modal", categoria: "Remeras" },
-  { nombre: "Jean skinny elastizado", categoria: "Pantalones" },
-  { nombre: "Pantalón palazzo crepe", categoria: "Pantalones" },
-  { nombre: "Vestido noche brillo", categoria: "Vestidos" },
-  { nombre: "Vestido mini volados", categoria: "Vestidos" },
-  { nombre: "Borcego urbano", categoria: "Calzado" },
-  { nombre: "Sandalia taco medio", categoria: "Calzado" },
-  { nombre: "Billetera compacta", categoria: "Accesorios" },
-  { nombre: "Gorra trucker", categoria: "Accesorios" },
-  { nombre: "Chaleco puffer", categoria: "Abrigos" },
-  { nombre: "Campera softshell", categoria: "Abrigos" },
-  { nombre: "Top deportivo seamless", categoria: "Deportivo" },
-  { nombre: "Jogger deportivo slim", categoria: "Deportivo" },
-  { nombre: "Remera outlet 2x1", categoria: "Remeras" },
-];
+  { nombre: "Vestido floral", categoria: "Vestidos", foto: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", descripcion: "Vestido liviano estampado para primavera-verano.", precio: 24500, precioMayorista: 19800, talle: "S, M, L", color: "Floral", stock: 13 },
+  { nombre: "Vestido negro básico", categoria: "Vestidos", foto: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400", descripcion: "Modelo versátil de salida y uso diario.", precio: 25900, precioMayorista: 20800, talle: "S, M, L", color: "Negro", stock: 11 },
+  { nombre: "Vestido casual de feria", categoria: "Vestidos", foto: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", descripcion: "Corte cómodo y buena rotación.", precio: 23800, precioMayorista: 18900, talle: "M, L", color: "Estampado", stock: 12 },
+  { nombre: "Vestido midi urbano", categoria: "Vestidos", foto: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400", descripcion: "Caída suave para venta de temporada.", precio: 26800, precioMayorista: 21400, talle: "S, M, L", color: "Negro", stock: 10 },
+
+  { nombre: "Zapatilla deportiva", categoria: "Calzado", foto: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400", descripcion: "Running liviana para uso urbano.", precio: 42000, precioMayorista: 36000, talle: "38, 39, 40, 41, 42", color: "Rojo", stock: 15 },
+  { nombre: "Zapatilla urbana", categoria: "Calzado", foto: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400", descripcion: "Diseño urbano clásico para stock fijo.", precio: 39500, precioMayorista: 33500, talle: "37, 38, 39, 40, 41", color: "Blanco", stock: 18 },
+  { nombre: "Zapatilla deportiva negra", categoria: "Calzado", foto: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400", descripcion: "Versión oscura de alta salida.", precio: 40900, precioMayorista: 34900, talle: "39, 40, 41, 42", color: "Negro", stock: 14 },
+  { nombre: "Zapatilla urbana blanca", categoria: "Calzado", foto: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400", descripcion: "Perfil casual para outfits diarios.", precio: 39800, precioMayorista: 33800, talle: "36, 37, 38, 39, 40", color: "Blanco", stock: 17 },
+
+  { nombre: "Cinturón cuero", categoria: "Accesorios", foto: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400", descripcion: "Accesorio básico de alta demanda.", precio: 9800, precioMayorista: 7600, talle: "Único", color: "Marrón", stock: 30 },
+  { nombre: "Cartera de mano", categoria: "Accesorios", foto: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400", descripcion: "Cartera compacta para venta minorista.", precio: 17500, precioMayorista: 13900, talle: "Único", color: "Negro", stock: 21 },
+  { nombre: "Cartera de mano beige", categoria: "Accesorios", foto: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400", descripcion: "Variante neutra para combo mayorista.", precio: 17900, precioMayorista: 14200, talle: "Único", color: "Beige", stock: 19 },
+] as const;
 
 export function getDemoStoreBySlug(slug: string) {
   return demoStores.find((s) => s.slug === slug);
@@ -138,34 +78,26 @@ export function getDemoStoreBySlug(slug: string) {
 
 export const demoProducts: DemoProduct[] = catalogItems.map((item, i) => {
   const store = demoStores[i % demoStores.length];
-  const price = 9000 + ((i * 1900) % 76000);
-  const descuentoPct = 20 + (i % 5) * 10;
-  const original = Math.round((price * (100 / (100 - descuentoPct))) / 100) * 100;
-  const categoryPhotos = photoByCategory[item.categoria];
-  const photo = categoryPhotos[i % categoryPhotos.length];
-  const photo2 = categoryPhotos[(i + 1) % categoryPhotos.length];
+  const descuentoPct = 12 + (i % 4) * 4;
+  const original = Math.round((item.precio * (100 / (100 - descuentoPct))) / 100) * 100;
   const wa = `+549115555${String(1000 + (i % 9000)).slice(-4)}`;
-  const envio_metodos = {
-    retiro: true,
-    correo: i % 3 !== 0,
-    oca: i % 2 === 0,
-    andreani: i % 4 === 0,
-  };
+  const envio_metodos = { retiro: true, correo: i % 3 !== 0, oca: i % 2 === 0, andreani: i % 4 === 0 };
   return {
     id: `demo-${i + 1}`,
     tienda_id: store.id,
     nombre: item.nombre,
     marca: store.nombre,
-    descripcion: `${item.nombre} con moldería argentina, tela seleccionada y terminaciones reforzadas. Ideal para venta minorista y mayorista con alta rotación.`,
-    precio: price,
+    descripcion: item.descripcion,
+    precio: item.precio,
     precio_lista: original,
+    precio_mayorista: item.precioMayorista,
     categoria: item.categoria,
-    talle: talles[i % talles.length],
-    color: colores[i % colores.length],
-    stock: 5 + (i % 25),
-    fotos: [photo, photo2],
+    talle: item.talle,
+    color: item.color,
+    stock: item.stock,
+    fotos: [item.foto],
     activo: true,
-    destacado: i % 7 === 0,
+    destacado: i % 6 === 0,
     created_at: new Date(Date.now() - i * 3600 * 1000).toISOString(),
     tiendas: {
       slug: store.slug,
@@ -177,7 +109,7 @@ export const demoProducts: DemoProduct[] = catalogItems.map((item, i) => {
     },
     precioOriginal: original,
     descuentoPct,
-    nuevo: i % 6 === 0,
+    nuevo: i % 5 === 0,
   };
 });
 
@@ -185,5 +117,4 @@ export function getDemoProductById(id: string): DemoProduct | undefined {
   return demoProducts.find((p) => p.id === id);
 }
 
-/** Mismos 50 productos demo del sitio, para el panel de Tienda Demo */
 export const demoProductsTiendaDemo = demoProducts;

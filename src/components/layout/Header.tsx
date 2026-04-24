@@ -57,7 +57,7 @@ export function Header() {
           >
             ☰
           </button>
-          <Link href="/" className="rounded-xl bg-[#FF6B00] px-3 py-1.5 text-2xl font-black tracking-tight text-white">
+          <Link href="/" className="rounded-xl bg-[#F97316] px-3 py-1.5 text-2xl font-black tracking-tight text-white">
             La Salada
           </Link>
 
@@ -67,11 +67,11 @@ export function Header() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Buscar remeras, vestidos, calzado..."
-                className="w-full rounded-l-xl border border-[#E0E0E0] bg-white px-4 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#555555] focus:border-[#FF6B00] focus:outline-none"
+                className="w-full rounded-l-xl border border-[#E0E0E0] bg-white px-4 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#555555] focus:border-[#F97316] focus:outline-none"
               />
               <button
                 type="submit"
-                className="rounded-r-xl bg-[#FF6B00] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#E05A00]"
+                className="rounded-r-xl bg-[#F97316] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#EA6C0A]"
               >
                 Buscar
               </button>
@@ -112,7 +112,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="relative rounded-lg border border-[#E0E0E0] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] hover:border-[#FF6B00]"
+              className="relative rounded-lg border border-[#E0E0E0] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] hover:border-[#F97316]"
             >
               Carrito
               {count > 0 && (
@@ -128,14 +128,14 @@ export function Header() {
             {cats.map((c) => {
               if (c.value === "Feriantes") {
                 return (
-                  <Link key={c.value} href="/feriantes" className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#FF6B00] hover:text-white">
+                  <Link key={c.value} href="/feriantes" className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#F97316] hover:text-white">
                     {c.label}
                   </Link>
                 );
               }
               if (c.value === "Ofertas") {
                 return (
-                  <Link key={c.value} href="/?descuento=1" className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#FF6B00] hover:text-white">
+                  <Link key={c.value} href="/?descuento=1" className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#F97316] hover:text-white">
                     {c.label}
                   </Link>
                 );
@@ -144,7 +144,7 @@ export function Header() {
                 <Link
                   key={c.value}
                   href={`/?categoria=${encodeURIComponent(c.value)}`}
-                  className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#FF6B00] hover:text-white"
+                  className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#F97316] hover:text-white"
                 >
                   {c.label}
                 </Link>

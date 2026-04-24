@@ -6,12 +6,14 @@ export async function GET() {
   const productos = [
     [
       "nombre",
+      "sku",
       "descripcion",
       "categoria",
       "precio",
+      "precio_mayorista",
       "precio_descuento",
-      "talle",
-      "color",
+      "tallas",
+      "colores",
       "stock",
       "marca",
       "material",
@@ -22,7 +24,7 @@ export async function GET() {
       "foto_3_url",
       "etiquetas",
     ],
-    ["Ej: Remera", "Texto", "Remeras", "10000", "8500", "M", "Rojo", "10", "Marca", "Algodón", "unisex", "200", "", "", "", "tag1, tag2"],
+    ["Ej: Remera", "REM-0001", "Texto", "Remeras", "10000", "8000", "8500", "M, L", "Rojo, Negro", "10", "Marca", "Algodón", "unisex", "200", "", "", "", "tag1, tag2"],
   ];
   const ws = XLSX.utils.aoa_to_sheet(productos);
   const instr = XLSX.utils.aoa_to_sheet([

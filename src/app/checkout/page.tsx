@@ -51,7 +51,7 @@ export default function CheckoutPage() {
         <section className="rounded-2xl border border-[#E0E0E0] bg-white p-8 text-center">
           <h1 className="text-3xl font-black text-[#1A1A1A]">Tu checkout está vacío</h1>
           <p className="mt-2 text-[#555555]">Agregá productos para continuar con el pago seguro por Mercado Pago.</p>
-          <Link href="/" className="mt-5 inline-block rounded-xl bg-[#FF6B00] px-4 py-2 font-bold text-white">
+          <Link href="/" className="mt-5 inline-block rounded-xl bg-[#F97316] px-4 py-2 font-bold text-white">
             Ver productos
           </Link>
         </section>
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
             type="button"
             onClick={() => void pagar()}
             disabled={loading}
-            className="mt-4 w-full rounded-xl bg-[#FF6B00] px-4 py-3 font-bold text-white hover:bg-[#E05A00] disabled:opacity-60"
+            className="mt-4 w-full rounded-xl bg-[#F97316] px-4 py-3 font-bold text-white hover:bg-[#EA6C0A] disabled:opacity-60"
           >
             {loading ? "Iniciando pago..." : "Pagar con Mercado Pago"}
           </button>

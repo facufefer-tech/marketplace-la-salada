@@ -15,6 +15,15 @@ function parseFotos(row: Row) {
   return [row.foto_1_url, row.foto_2_url, row.foto_3_url].filter(Boolean) as string[];
 }
 
+function parseArray(v: string | undefined) {
+  if (!v) return null;
+  const parts = v
+    .split(/[,;/]/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return parts.length ? parts : null;
+}
+
 async function insertProductoCompat(
   supabase: ReturnType<typeof createSupabaseRouteClient>,
   insert: Record<string, unknown>,
@@ -71,8 +80,12 @@ export async function POST(req: NextRequest) {
       categoria,
       precio: precioDesc && precioDesc < precio ? precioDesc : precio,
       precio_lista: precioDesc && precioDesc < precio ? precio : null,
+      precio_mayorista: r.precio_mayorista != null && r.precio_mayorista !== "" ? Number(r.precio_mayorista) : null,
       talle: r.talle?.trim() || null,
       color: r.color?.trim() || null,
+      tallas: parseArray(r.tallas ?? r.talle),
+      colores: parseArray(r.colores ?? r.color),
+      sku: r.sku?.trim() || null,
       stock: r.stock != null && r.stock !== "" ? Number(r.stock) : 0,
       marca: r.marca?.trim() || null,
       material: r.material?.trim() || null,

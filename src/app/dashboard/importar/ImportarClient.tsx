@@ -29,9 +29,13 @@ function toInternalRows(rawRows: Row[]) {
         else if (nk === "descripcion") mapped.descripcion = v;
         else if (nk === "categorias" || nk === "categoria") mapped.categoria = v.split(",")[0]!.trim();
         else if (nk === "precio") mapped.precio = v;
+        else if (nk === "precio_mayorista" || nk === "precio mayorista") mapped.precio_mayorista = v;
         else if (nk === "precio promocional" || nk === "precio_promocional") mapped.precio_descuento = v;
         else if (nk === "stock") mapped.stock = v;
         else if (nk === "marca") mapped.marca = v;
+        else if (nk === "sku") mapped.sku = v;
+        else if (nk === "tallas" || nk === "talles") mapped.tallas = v;
+        else if (nk === "colores") mapped.colores = v;
         else if (nk === "peso (kg)" || nk === "peso kg") {
           const kg = Number(v.replace(",", "."));
           if (Number.isFinite(kg)) mapped.peso_gramos = String(Math.round(kg * 1000));
@@ -49,6 +53,8 @@ function toInternalRows(rawRows: Row[]) {
         const b = bySlug.get(slug)!;
         return { ...b, ...r, nombre: b.nombre, categoria: r.categoria || b.categoria, descripcion: r.descripcion || b.descripcion };
       }
+      if (r.tallas && !r.talle) r.talle = r.tallas;
+      if (r.colores && !r.color) r.color = r.colores;
       return r;
     })
     .filter((x) => x.nombre && x.precio)
@@ -152,6 +158,7 @@ export function ImportarClient() {
                     <td className="p-1">{r.categoria}</td>
                     <td className="p-1">{r.talle}</td>
                     <td className="p-1">{r.color}</td>
+                    <td className="p-1">{r.sku}</td>
                   </tr>
                 ))}
               </tbody>

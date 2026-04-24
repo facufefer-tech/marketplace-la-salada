@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const slides = [
+  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600",
   "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1600",
-  "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=800",
-  "https://images.unsplash.com/photo-1573408301185-9519f94f8be5?w=800",
+  "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=1600",
 ];
 
 export function HeroRotator() {

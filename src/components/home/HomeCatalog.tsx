@@ -100,7 +100,7 @@ export function HomeCatalog() {
   return (
     <section className="container-shell space-y-6">
       <div className="rounded-2xl border border-[#E0E0E0] bg-[#F5F5F5] p-4 md:p-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">Filtros en vivo</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#F97316]">Filtros en vivo</p>
         <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <label className="block text-sm text-[#555555]">
             Buscar
@@ -189,7 +189,7 @@ export function HomeCatalog() {
 
       <div className="mb-2 flex items-end justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FF6B00]">Catálogo</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F97316]">Catálogo</p>
           <h2 className="text-3xl font-black text-[#1A1A1A]">Productos</h2>
           <p className="text-sm text-[#555555]">{filtered.length} resultados</p>
         </div>
@@ -221,7 +221,7 @@ export function HomeCatalog() {
           <button
             type="button"
             onClick={() => setVisible((v) => v + 8)}
-            className="rounded-xl border border-[#E0E0E0] px-5 py-2 text-sm font-semibold text-[#1A1A1A] hover:border-[#FF6B00] hover:text-[#FF6B00]"
+            className="rounded-xl border border-[#E0E0E0] px-5 py-2 text-sm font-semibold text-[#1A1A1A] hover:border-[#F97316] hover:text-[#F97316]"
           >
             Cargar más productos
           </button>

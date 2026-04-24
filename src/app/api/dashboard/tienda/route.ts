@@ -58,12 +58,12 @@ export async function POST(req: NextRequest) {
   const payload = {
     nombre: String(body.nombre),
     slug,
-    descripcion: (body.descripcion as string) ?? null,
+    descripcion: ((body.descripcion as string) ?? (body.descripcion_larga as string)) ?? null,
     descripcion_html: (body.descripcion_html as string) ?? null,
     logo_url: (body.logo_url as string) ?? null,
     banner_url: (body.banner_url as string) ?? null,
-    banner_text: (body.banner_text as string) ?? null,
-    color_primario: (body.color_primario as string) ?? null,
+    banner_text: ((body.banner_text as string) ?? (body.banner_texto as string)) ?? null,
+    color_primario: ((body.color_primario as string) ?? (body.color_principal as string)) ?? null,
     whatsapp: (body.whatsapp as string) ?? null,
     instagram: (body.instagram as string) ?? null,
     facebook: (body.facebook as string) ?? null,
@@ -132,5 +132,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  return POST(req);
+}
+
+export async function PATCH(req: NextRequest) {
   return POST(req);
 }

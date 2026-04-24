@@ -21,7 +21,7 @@ export function CategoryGrid() {
           <Link
             key={label}
             href={label === "Ofertas" ? "/?descuento=1" : label === "Feriantes" ? "/feriantes" : `/?categoria=${encodeURIComponent(label)}`}
-            className="rounded-2xl border border-[#E0E0E0] bg-white p-5 text-center shadow-sm hover:border-[#FF6B00] hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+            className="rounded-2xl border border-[#E0E0E0] bg-white p-5 text-center shadow-sm hover:border-[#F97316] hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
           >
             <p className="text-4xl">{emoji}</p>
             <p className="mt-2 text-base font-extrabold text-[#1A1A1A]">{label}</p>
