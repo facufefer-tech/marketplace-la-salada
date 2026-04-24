@@ -31,7 +31,9 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
+  // Temporal: /dashboard/productos/nuevo accesible sin login para pruebas
+  const isPublicNuevoProducto = request.nextUrl.pathname === "/dashboard/productos/nuevo";
+  if (request.nextUrl.pathname.startsWith("/dashboard") && !user && !isPublicNuevoProducto) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth";
     url.searchParams.set("next", request.nextUrl.pathname);

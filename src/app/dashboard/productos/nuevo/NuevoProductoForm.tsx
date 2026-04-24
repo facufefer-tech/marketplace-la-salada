@@ -59,12 +59,16 @@ export function NuevoProductoForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const json = await res.json();
+      const json = (await res.json()) as { error?: string; demo?: boolean };
       if (!res.ok) {
         setErr(json.error ?? "No se pudo publicar");
         return;
       }
-      setOk("Producto publicado correctamente.");
+      setOk(
+        json.demo
+          ? "Producto guardado (modo prueba sin sesión, tienda demo del sistema)."
+          : "Producto publicado correctamente.",
+      );
       setNombre("");
       setPrecioOriginal("");
       setPrecioDescuento("");

@@ -1,5 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseRouteClient } from "@/lib/supabase/route";
+
+const DEMO_TIENDA_SLUG = "demo-cargas-publicas";
+
+async function getOrCreateDemoTiendaId() {
+  const idFromEnv = process.env.DEMO_TIENDA_ID;
+  if (idFromEnv) return idFromEnv;
+
+  const admin = createSupabaseAdminClient();
+  const { data: existing } = await admin.from("tiendas").select("id").eq("slug", DEMO_TIENDA_SLUG).maybeSingle();
+  if (existing?.id) return existing.id;
+
+  const { data: created, error } = await admin
+    .from("tiendas")
+    .insert({
+      slug: DEMO_TIENDA_SLUG,
+      nombre: "Demo — cargas sin cuenta",
+      descripcion: "Productos de prueba cargados sin iniciar sesión (temporal).",
+      activa: true,
+      plan: "free",
+      comision_pct: 5,
+      owner_id: null,
+    })
+    .select("id")
+    .single();
+
+  if (error || !created) {
+    throw new Error(error?.message ?? "No se pudo crear la tienda demo");
+  }
+  return created.id;
+}
 
 async function getMyTiendaId(supabase: ReturnType<typeof createSupabaseRouteClient>) {
   const {
@@ -29,8 +60,6 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const supabase = createSupabaseRouteClient();
   const { user, tiendaId } = await getMyTiendaId(supabase);
-  if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  if (!tiendaId) return NextResponse.json({ error: "Primero completá el onboarding de tienda" }, { status: 400 });
 
   let body: Record<string, unknown>;
   try {
@@ -40,7 +69,6 @@ export async function POST(req: NextRequest) {
   }
 
   const insert = {
-    tienda_id: tiendaId,
     nombre: String(body.nombre ?? ""),
     descripcion: (body.descripcion as string) ?? null,
     precio: Number(body.precio ?? 0),
@@ -57,9 +85,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "nombre requerido" }, { status: 400 });
   }
 
-  const { data, error } = await supabase.from("productos").insert(insert).select().single();
+  if (user && tiendaId) {
+    const { data, error } = await supabase
+      .from("productos")
+      .insert({ ...insert, tienda_id: tiendaId })
+      .select()
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ data });
+  }
+
+  if (user && !tiendaId) {
+    return NextResponse.json({ error: "Primero completá el onboarding de tienda" }, { status: 400 });
+  }
+
+  // Sin login: carga de prueba en tienda demo (temporal, mismo criterio que ruta pública)
+  let demoTiendaId: string;
+  try {
+    demoTiendaId = await getOrCreateDemoTiendaId();
+  } catch (e) {
+    const m = e instanceof Error ? e.message : "Error al resolver tienda demo";
+    return NextResponse.json({ error: m }, { status: 500 });
+  }
+
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin
+    .from("productos")
+    .insert({ ...insert, tienda_id: demoTiendaId })
+    .select()
+    .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ data });
+  return NextResponse.json({ data, demo: true });
 }
 
 export async function PUT(req: NextRequest) {

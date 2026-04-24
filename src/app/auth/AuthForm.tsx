@@ -5,12 +5,23 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+function slugifyTienda(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "")
+    .slice(0, 60);
+}
+
 export function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nombreTienda, setNombreTienda] = useState("");
   const [mode, setMode] = useState<"login" | "registro">("login");
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,17 +42,44 @@ export function AuthForm() {
         router.refresh();
         return;
       }
+
+      const nombre = nombreTienda.trim();
+      if (!nombre) {
+        setMsg("Ingresá el nombre de tu tienda.");
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setMsg(error.message);
         return;
       }
+
       if (data.session) {
+        const base = slugifyTienda(nombre) || "tienda";
+        const slug = `${base}-${Date.now().toString().slice(-6)}`;
+        const res = await fetch("/api/dashboard/tienda", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, slug, descripcion: null }),
+        });
+        const json = (await res.json()) as { error?: string };
+        if (!res.ok) {
+          setMsg(
+            json.error
+              ? `Cuenta creada, pero no se pudo crear la tienda: ${json.error}. Podés completarla desde el panel.`
+              : "Cuenta creada. Completá tu tienda desde el panel.",
+          );
+          router.push(next);
+          router.refresh();
+          return;
+        }
         router.push(next);
         router.refresh();
         return;
       }
-      setMsg("Revisá tu correo para confirmar la cuenta (si el proveedor lo exige).");
+
+      setMsg("Revisá tu correo para confirmar la cuenta. Cuando entres, vas a poder usar el nombre de tienda en el panel si no se creó automáticamente.");
     } finally {
       setLoading(false);
     }
@@ -74,6 +112,19 @@ export function AuthForm() {
             className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-white"
           />
         </label>
+        {mode === "registro" && (
+          <label className="block text-sm text-zinc-400">
+            Nombre de la tienda
+            <input
+              type="text"
+              required
+              value={nombreTienda}
+              onChange={(e) => setNombreTienda(e.target.value)}
+              placeholder="Ej: UrbanStyle Lomas"
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-white"
+            />
+          </label>
+        )}
         {msg && <p className="text-sm text-amber-300">{msg}</p>}
         <button
           type="submit"
