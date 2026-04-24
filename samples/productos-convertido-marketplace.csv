@@ -1,0 +1,5 @@
+nombre,descripcion,categoria,precio,precio_descuento,talle,color,stock,marca,material,genero,peso_gramos,foto_1_url,foto_2_url,foto_3_url,etiquetas
+Pantalón corto,Un artículo ineludible este verano.,Pantalones,220,200,,,0,,,unisex,1000,,,,verano|corto
+Camisa manga corta,Camisa clásica para el verano.,Camisas,450,,Large,Blanco,0,brand,,unisex,2000,,,,camisa|verano
+Camisa manga corta,Camisa manga corta variante negra.,Camisas,450,,Large,Negro,0,brand,,unisex,2000,,,,camisa|negra
+Camisa manga corta,Camisa manga corta variante blanca medium.,Camisas,450,,Medium,Blanco,0,brand,,unisex,2000,,,,camisa|blanca

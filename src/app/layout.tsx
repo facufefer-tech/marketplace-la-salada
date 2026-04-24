@@ -8,7 +8,7 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 
 export const metadata: Metadata = {
   title: "La Salada — Marketplace",
-  description: "Negro profundo, naranja neón y experiencia simple para vender en todo el país.",
+  description: "Marketplace de La Salada: moda mayorista y minorista con envío a todo el país.",
 };
 
 export default function RootLayout({
@@ -18,8 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="min-h-dvh bg-[#0a0a0a] text-zinc-100 antialiased">
-        <Suspense fallback={<div className="h-14 border-b border-zinc-800 bg-[#111111]" />}>
+      <body className="min-h-dvh bg-white text-[#1A1A1A] antialiased">
+        <Suspense fallback={<div className="h-14 border-b border-[#E0E0E0] bg-white" />}>
           <Header />
         </Suspense>
         <div className="min-h-[60vh] pb-20 md:pb-0">{children}</div>

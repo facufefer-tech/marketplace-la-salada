@@ -23,6 +23,9 @@ export function NuevoProductoForm() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
+  const cloudinaryEnabled = Boolean(
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME && process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  );
 
   function toggleTalle(t: string) {
     setTallesSel((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
@@ -125,22 +128,33 @@ export function NuevoProductoForm() {
             </div>
           ))}
         </div>
-        <CldUploadWidget
-          signatureEndpoint="/api/cloudinary/sign"
-          options={{ sources: ["local"], multiple: true, maxFiles: 4 }}
-          onSuccess={(result) => {
-            const info = result.info as { secure_url?: string };
-            if (info?.secure_url) {
-              setFotos((prev) => [...prev, info.secure_url!].slice(0, 4));
-            }
-          }}
-        >
-          {({ open }) => (
-            <button type="button" onClick={() => open()} className="rounded-lg border border-zinc-600 px-3 py-2 text-sm font-bold text-zinc-100">
-              Subir fotos
-            </button>
-          )}
-        </CldUploadWidget>
+        {cloudinaryEnabled ? (
+          <CldUploadWidget
+            signatureEndpoint="/api/cloudinary/sign"
+            options={{ sources: ["local"], multiple: true, maxFiles: 4 }}
+            onSuccess={(result) => {
+              const info = result.info as { secure_url?: string };
+              if (info?.secure_url) {
+                setFotos((prev) => [...prev, info.secure_url!].slice(0, 4));
+              }
+            }}
+          >
+            {({ open }) => (
+              <button type="button" onClick={() => open()} className="rounded-lg border border-zinc-600 px-3 py-2 text-sm font-bold text-zinc-100">
+                Subir fotos
+              </button>
+            )}
+          </CldUploadWidget>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="cursor-not-allowed rounded-lg border border-zinc-700 px-3 py-2 text-sm font-bold text-zinc-500"
+            title="Falta configurar Cloudinary público"
+          >
+            Subir fotos (deshabilitado)
+          </button>
+        )}
       </div>
 
       {err && <p className="text-sm text-red-400">{err}</p>}

@@ -75,20 +75,36 @@ export async function POST(req: NextRequest) {
     envio_metodos: parseEnvioMetodos(body.envio_metodos),
     activa: body.activa !== false,
   };
+  const basicPayload = {
+    nombre: String(body.nombre),
+    slug,
+    descripcion: (body.descripcion as string) ?? null,
+    logo_url: (body.logo_url as string) ?? null,
+    banner_url: (body.banner_url as string) ?? null,
+    activa: body.activa !== false,
+  };
 
   const { data: existing } = await supabase.from("tiendas").select("id").eq("owner_id", user.id).maybeSingle();
   if (existing?.id) {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("tiendas")
       .update(payload)
       .eq("id", existing.id)
       .select()
       .single();
+    if (error && error.message.toLowerCase().includes("could not find the")) {
+      ({ data, error } = await supabase
+        .from("tiendas")
+        .update(basicPayload)
+        .eq("id", existing.id)
+        .select()
+        .single());
+    }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ data });
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("tiendas")
     .insert({
       owner_id: user.id,
@@ -98,6 +114,18 @@ export async function POST(req: NextRequest) {
     })
     .select()
     .single();
+  if (error && error.message.toLowerCase().includes("could not find the")) {
+    ({ data, error } = await supabase
+      .from("tiendas")
+      .insert({
+        owner_id: user.id,
+        ...basicPayload,
+        plan: "free",
+        comision_pct: 5,
+      })
+      .select()
+      .single());
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });

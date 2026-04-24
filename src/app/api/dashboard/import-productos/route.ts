@@ -15,6 +15,30 @@ function parseFotos(row: Row) {
   return [row.foto_1_url, row.foto_2_url, row.foto_3_url].filter(Boolean) as string[];
 }
 
+async function insertProductoCompat(
+  supabase: ReturnType<typeof createSupabaseRouteClient>,
+  insert: Record<string, unknown>,
+) {
+  let { error } = await supabase.from("productos").insert(insert);
+  if (!error) return null;
+  if (!error.message.toLowerCase().includes("could not find the")) return error;
+  const basic = {
+    tienda_id: insert.tienda_id,
+    nombre: insert.nombre,
+    descripcion: insert.descripcion,
+    categoria: insert.categoria,
+    precio: insert.precio,
+    talle: insert.talle,
+    color: insert.color,
+    stock: insert.stock,
+    fotos: insert.fotos,
+    activo: true,
+    destacado: false,
+  };
+  ({ error } = await supabase.from("productos").insert(basic));
+  return error ?? null;
+}
+
 export async function POST(req: NextRequest) {
   const supabase = createSupabaseRouteClient();
   const {
@@ -60,7 +84,7 @@ export async function POST(req: NextRequest) {
       destacado: false,
       estado_publicacion: "publicado",
     };
-    const { error } = await supabase.from("productos").insert(insert);
+    const error = await insertProductoCompat(supabase, insert);
     if (error) {
       errors.push({ fila: i + 1, mensaje: error.message });
     } else {

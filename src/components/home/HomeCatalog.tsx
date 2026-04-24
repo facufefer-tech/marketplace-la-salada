@@ -74,24 +74,24 @@ export function HomeCatalog() {
 
   return (
     <section className="container-shell space-y-6">
-      <div className="rounded-2xl border border-zinc-800 bg-[#111111] p-4 md:p-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-orange-400">Filtros en vivo</p>
+      <div className="rounded-2xl border border-[#E0E0E0] bg-[#F5F5F5] p-4 md:p-5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">Filtros en vivo</p>
         <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <label className="block text-sm text-zinc-300">
+          <label className="block text-sm text-[#555555]">
             Buscar
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Nombre, marca, categoría…"
-              className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-3 py-2 text-white"
+              className="mt-1 w-full rounded-xl border border-[#E0E0E0] bg-white px-3 py-2 text-[#1A1A1A]"
             />
           </label>
-          <label className="block text-sm text-zinc-300">
+          <label className="block text-sm text-[#555555]">
             Categoría
             <select
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-3 py-2 text-white"
+              className="mt-1 w-full rounded-xl border border-[#E0E0E0] bg-white px-3 py-2 text-[#1A1A1A]"
             >
               {CATS.map((c) => (
                 <option key={c} value={c === "Todas" ? "Todas" : c}>
@@ -100,14 +100,14 @@ export function HomeCatalog() {
               ))}
             </select>
           </label>
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <label className="flex items-center gap-2 text-sm text-[#555555]">
             <input type="checkbox" checked={soloOfertas} onChange={(e) => setSoloOfertas(e.target.checked)} className="rounded" />
             Solo ofertas fuertes (≥25% off)
           </label>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-[#555555]">
               Rango de precio: ${minPrecio.toLocaleString("es-AR")} — ${maxPrecio.toLocaleString("es-AR")}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -138,9 +138,9 @@ export function HomeCatalog() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <label className="text-sm text-zinc-300">
+            <label className="text-sm text-[#555555]">
               Talle
-              <select value={talle} onChange={(e) => setTalle(e.target.value)} className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-2 py-2 text-white text-sm">
+              <select value={talle} onChange={(e) => setTalle(e.target.value)} className="mt-1 w-full rounded-xl border border-[#E0E0E0] bg-white px-2 py-2 text-[#1A1A1A] text-sm">
                 {TALLES.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -148,9 +148,9 @@ export function HomeCatalog() {
                 ))}
               </select>
             </label>
-            <label className="text-sm text-zinc-300">
+            <label className="text-sm text-[#555555]">
               Color
-              <select value={color} onChange={(e) => setColor(e.target.value)} className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-2 py-2 text-white text-sm">
+              <select value={color} onChange={(e) => setColor(e.target.value)} className="mt-1 w-full rounded-xl border border-[#E0E0E0] bg-white px-2 py-2 text-[#1A1A1A] text-sm">
                 {coloresU.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -164,15 +164,15 @@ export function HomeCatalog() {
 
       <div className="mb-2 flex items-end justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-400">Catálogo</p>
-          <h2 className="text-3xl font-black text-white">Productos</h2>
-          <p className="text-sm text-zinc-500">{filtered.length} resultados</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FF6B00]">Catálogo</p>
+          <h2 className="text-3xl font-black text-[#1A1A1A]">Productos</h2>
+          <p className="text-sm text-[#555555]">{filtered.length} resultados</p>
         </div>
       </div>
       {loading ? (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+            <div key={i} className="overflow-hidden rounded-2xl border border-[#E0E0E0] bg-white">
               <div className="skeleton aspect-[4/5]" />
               <div className="space-y-2 p-3">
                 <div className="skeleton h-4 w-3/4 rounded" />
@@ -196,7 +196,7 @@ export function HomeCatalog() {
           <button
             type="button"
             onClick={() => setVisible((v) => v + 8)}
-            className="rounded-xl border border-zinc-700 px-5 py-2 text-sm font-semibold text-zinc-100 hover:border-orange-500 hover:text-orange-400"
+            className="rounded-xl border border-[#E0E0E0] px-5 py-2 text-sm font-semibold text-[#1A1A1A] hover:border-[#FF6B00] hover:text-[#FF6B00]"
           >
             Cargar más productos
           </button>

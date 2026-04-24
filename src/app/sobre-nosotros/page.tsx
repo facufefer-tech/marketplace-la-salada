@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sobre nosotros | La Salada",
+  description: "Conocé la historia, visión y valores de La Salada Marketplace.",
+};
+
 export default function SobreNosotrosPage() {
   return (
     <main className="bg-[#0a0a0a]">

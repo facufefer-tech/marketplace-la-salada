@@ -21,9 +21,13 @@ export function EnviosConfigForm() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setMsg(null);
     try {
       const res = await fetch("/api/dashboard/envios-config");
-      const j = (await res.json()) as { data?: Row[]; defaults?: { metodo: string; defaultPrecio: number; descripcion: string }[] };
+      const j = (await res.json()) as { data?: Row[]; error?: string };
+      if (!res.ok) {
+        throw new Error(j.error ?? "No se pudo cargar envíos");
+      }
       if (j.data && j.data.length) {
         const m = new Map(j.data.map((r) => [r.metodo, r]));
         setRows(
@@ -51,6 +55,18 @@ export function EnviosConfigForm() {
           })),
         );
       }
+    } catch (e) {
+      const m = e instanceof Error ? e.message : "Error cargando envíos";
+      setMsg(`Modo básico activo: ${m}`);
+      setRows(
+        METODOS.map((def) => ({
+          metodo: def.id,
+          activo: def.id === "retiro",
+          precio: def.fijo ? 0 : 5000,
+          descripcion: def.label,
+          tiempo_entrega: "2-5 días",
+        })),
+      );
     } finally {
       setLoading(false);
     }
@@ -83,6 +99,8 @@ export function EnviosConfigForm() {
         return;
       }
       setMsg("Envíos guardados.");
+    } catch {
+      setMsg("No se pudieron guardar envíos (revisá migración de base).");
     } finally {
       setSaving(false);
     }
@@ -124,7 +142,7 @@ export function EnviosConfigForm() {
           </div>
         ))}
       </div>
-      {msg && <p className="text-sm text-emerald-600">{msg}</p>}
+      {msg && <p className={`text-sm ${msg.toLowerCase().includes("error") || msg.toLowerCase().includes("modo básico") ? "text-amber-700" : "text-emerald-600"}`}>{msg}</p>}
       <button
         type="button"
         onClick={() => void save()}

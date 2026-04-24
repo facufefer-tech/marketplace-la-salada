@@ -11,6 +11,18 @@ function slugify(value: string) {
     .slice(0, 50);
 }
 
+async function slugUnico(admin: ReturnType<typeof createSupabaseAdminClient>, base: string) {
+  let intento = 0;
+  while (intento < 5) {
+    const sufijo = `${Date.now().toString(36).slice(-6)}${intento ? `-${intento}` : ""}`;
+    const candidato = `${base}-${sufijo}`;
+    const { data } = await admin.from("tiendas").select("id").eq("slug", candidato).limit(1);
+    if (!data || data.length === 0) return candidato;
+    intento += 1;
+  }
+  return `${base}-${crypto.randomUUID().slice(0, 8)}`;
+}
+
 export async function POST(req: NextRequest) {
   let body: { email?: string; password?: string; nombreTienda?: string };
   try {
@@ -43,7 +55,7 @@ export async function POST(req: NextRequest) {
   }
 
   const base = slugify(nombreTienda) || "tienda";
-  const slug = `${base}-${Date.now().toString(36).slice(-6)}`;
+  const slug = await slugUnico(admin, base);
 
   const { error: dbErr } = await admin.from("tiendas").insert({
     owner_id: created.user.id,

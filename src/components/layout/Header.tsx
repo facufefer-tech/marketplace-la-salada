@@ -36,21 +36,29 @@ export function Header() {
 
   const showSearch = pathname === "/";
   const showMenu = !pathname.startsWith("/dashboard") && !pathname.startsWith("/admin");
-  const cats = ["Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios", "Ofertas", "Feriantes"];
+  const cats = [
+    { label: "👕 Remeras", value: "Remeras" },
+    { label: "👖 Pantalones", value: "Pantalones" },
+    { label: "👗 Vestidos", value: "Vestidos" },
+    { label: "👟 Calzado", value: "Calzado" },
+    { label: "🧢 Accesorios", value: "Accesorios" },
+    { label: "🔥 Ofertas", value: "Ofertas" },
+    { label: "🏪 Feriantes", value: "Feriantes" },
+  ];
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-[#101010]/95 text-white backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-[#E0E0E0] bg-white/95 text-[#1A1A1A] shadow-sm backdrop-blur">
         <div className="container-shell flex flex-wrap items-center gap-3 py-3">
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-bold text-zinc-300 md:hidden"
+            className="rounded-lg border border-[#E0E0E0] px-3 py-1.5 text-xs font-bold text-[#555555] md:hidden"
           >
             ☰
           </button>
-          <Link href="/" className="text-2xl font-black tracking-tight text-white">
-            La <span className="text-orange-500">Salada</span>
+          <Link href="/" className="rounded-xl bg-[#FF6B00] px-3 py-1.5 text-2xl font-black tracking-tight text-white">
+            La Salada
           </Link>
 
           {showSearch && (
@@ -58,12 +66,12 @@ export function Header() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Buscar productos…"
-                className="w-full rounded-l-xl border border-zinc-700 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-500 focus:border-orange-400 focus:outline-none"
+                placeholder="Buscar remeras, vestidos, calzado..."
+                className="w-full rounded-l-xl border border-[#E0E0E0] bg-white px-4 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#555555] focus:border-[#FF6B00] focus:outline-none"
               />
               <button
                 type="submit"
-                className="rounded-r-xl bg-orange-500 px-5 py-2.5 text-sm font-bold text-black hover:bg-orange-400"
+                className="rounded-r-xl bg-[#FF6B00] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#E05A00]"
               >
                 Buscar
               </button>
@@ -73,38 +81,38 @@ export function Header() {
           <nav className="ml-auto hidden items-center gap-2 sm:gap-3 md:flex">
             <Link
               href="/sobre-nosotros"
-              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              className="rounded-lg px-2 py-1.5 text-sm text-[#555555] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]"
             >
               Sobre nosotros
             </Link>
             <Link
               href="/privacidad"
-              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              className="rounded-lg px-2 py-1.5 text-sm text-[#555555] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]"
             >
               Privacidad
             </Link>
             <Link
               href="/para-feriantes"
-              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              className="rounded-lg px-2 py-1.5 text-sm text-[#555555] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]"
             >
               Para feriantes
             </Link>
             <Link
               href="/envios"
-              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              className="rounded-lg px-2 py-1.5 text-sm text-[#555555] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]"
             >
               Envíos
             </Link>
             <Link
               href="/auth"
-              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              className="rounded-lg px-2 py-1.5 text-sm text-[#555555] hover:bg-[#F5F5F5] hover:text-[#1A1A1A]"
             >
               Cuenta
             </Link>
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="relative rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-100 hover:border-accent"
+              className="relative rounded-lg border border-[#E0E0E0] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] hover:border-[#FF6B00]"
             >
               Carrito
               {count > 0 && (
@@ -118,45 +126,45 @@ export function Header() {
         {showMenu && (
           <div className="container-shell flex gap-2 overflow-x-auto pb-3">
             {cats.map((c) => {
-              if (c === "Feriantes") {
+              if (c.value === "Feriantes") {
                 return (
-                  <Link key={c} href="/feriantes" className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500">
-                    {c}
+                  <Link key={c.value} href="/feriantes" className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#FF6B00] hover:text-white">
+                    {c.label}
                   </Link>
                 );
               }
-              if (c === "Ofertas") {
+              if (c.value === "Ofertas") {
                 return (
-                  <Link key={c} href="/?descuento=1" className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500">
-                    {c}
+                  <Link key={c.value} href="/?descuento=1" className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#FF6B00] hover:text-white">
+                    {c.label}
                   </Link>
                 );
               }
               return (
                 <Link
-                  key={c}
-                  href={`/?categoria=${encodeURIComponent(c)}`}
-                  className="whitespace-nowrap rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-semibold hover:bg-orange-500"
+                  key={c.value}
+                  href={`/?categoria=${encodeURIComponent(c.value)}`}
+                  className="whitespace-nowrap rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs font-semibold hover:bg-[#FF6B00] hover:text-white"
                 >
-                  {c}
+                  {c.label}
                 </Link>
               );
             })}
           </div>
         )}
         {menuOpen && (
-          <div className="container-shell border-t border-zinc-800 py-2 md:hidden">
+          <div className="container-shell border-t border-[#E0E0E0] py-2 md:hidden">
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <Link href="/sobre-nosotros" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+              <Link href="/sobre-nosotros" className="rounded-lg bg-[#F5F5F5] px-3 py-2" onClick={() => setMenuOpen(false)}>
                 Sobre nosotros
               </Link>
-              <Link href="/feriantes" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+              <Link href="/feriantes" className="rounded-lg bg-[#F5F5F5] px-3 py-2" onClick={() => setMenuOpen(false)}>
                 Feriantes
               </Link>
-              <Link href="/?descuento=1" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+              <Link href="/?descuento=1" className="rounded-lg bg-[#F5F5F5] px-3 py-2" onClick={() => setMenuOpen(false)}>
                 Ofertas
               </Link>
-              <Link href="/auth" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+              <Link href="/auth" className="rounded-lg bg-[#F5F5F5] px-3 py-2" onClick={() => setMenuOpen(false)}>
                 Mi cuenta
               </Link>
             </div>

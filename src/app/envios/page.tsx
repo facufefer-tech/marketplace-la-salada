@@ -1,4 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Envíos y retiros | La Salada",
+  description: "Métodos de envío y retiro disponibles en La Salada Marketplace.",
+};
 
 const opciones = [
   { t: "Retiro en el puesto", sub: "Gratis", d: "Coordiná día y horario con el feriante. Ideal si vivís cerca o pasás con frecuencia." },

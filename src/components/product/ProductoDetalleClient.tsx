@@ -56,7 +56,9 @@ export function ProductoDetalleClient({
   const [showGuia, setShowGuia] = useState(false);
   const router = useRouter();
   const add = useCartStore((s) => s.add);
-  const fotos = initial.fotos?.length ? initial.fotos : ["https://picsum.photos/800/800?random=4"];
+  const fotos = initial.fotos?.length
+    ? initial.fotos
+    : ["https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400"];
   const [idx, setIdx] = useState(0);
   const talles = useMemo(() => {
     const raw = splitTokens(initial.talle);

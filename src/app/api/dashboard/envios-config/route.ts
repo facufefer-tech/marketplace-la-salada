@@ -20,7 +20,12 @@ export async function GET() {
   if (!tienda) return NextResponse.json({ data: [] });
 
   const { data, error } = await supabase.from("envios_config").select("*").eq("tienda_id", tienda.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    if (error.message.toLowerCase().includes("could not find the table")) {
+      return NextResponse.json({ data: [] });
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ data, defaults: METODOS });
 }
 
@@ -55,7 +60,15 @@ export async function POST(req: NextRequest) {
       },
       { onConflict: "tienda_id,metodo" },
     );
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      if (error.message.toLowerCase().includes("could not find the table")) {
+        return NextResponse.json(
+          { error: "Falta migración SQL fase2: tabla envios_config no existe todavía." },
+          { status: 400 },
+        );
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
   }
   return NextResponse.json({ ok: true });
 }

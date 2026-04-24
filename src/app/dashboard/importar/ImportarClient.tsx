@@ -6,9 +6,59 @@ import * as XLSX from "xlsx";
 
 type Row = Record<string, string>;
 
+function normKey(k: string) {
+  return k
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/["']/g, "")
+    .trim();
+}
+
+function toInternalRows(rawRows: Row[]) {
+  const bySlug = new Map<string, Row>();
+  return rawRows
+    .map((r) => {
+      const mapped: Row = {};
+      const keys = Object.keys(r);
+      for (const key of keys) {
+        const nk = normKey(key);
+        const v = (r[key] ?? "").trim();
+        if (!v) continue;
+        if (nk === "nombre") mapped.nombre = v;
+        else if (nk === "descripcion") mapped.descripcion = v;
+        else if (nk === "categorias" || nk === "categoria") mapped.categoria = v.split(",")[0]!.trim();
+        else if (nk === "precio") mapped.precio = v;
+        else if (nk === "precio promocional" || nk === "precio_promocional") mapped.precio_descuento = v;
+        else if (nk === "stock") mapped.stock = v;
+        else if (nk === "marca") mapped.marca = v;
+        else if (nk === "peso (kg)" || nk === "peso kg") {
+          const kg = Number(v.replace(",", "."));
+          if (Number.isFinite(kg)) mapped.peso_gramos = String(Math.round(kg * 1000));
+        } else if (nk === "tags") mapped.etiquetas = v;
+        else if (nk === "valor de propiedad 1") mapped.color = v;
+        else if (nk === "valor de propiedad 2") mapped.talle = v;
+        else if (nk === "identificador de url") mapped._slug = v;
+      }
+      return mapped;
+    })
+    .map((r) => {
+      const slug = r._slug;
+      if (slug && r.nombre) bySlug.set(slug, r);
+      if (slug && !r.nombre && bySlug.has(slug)) {
+        const b = bySlug.get(slug)!;
+        return { ...b, ...r, nombre: b.nombre, categoria: r.categoria || b.categoria, descripcion: r.descripcion || b.descripcion };
+      }
+      return r;
+    })
+    .filter((x) => x.nombre && x.precio)
+    .map((x) => Object.fromEntries(Object.entries(x).filter(([k]) => k !== "_slug")) as Row);
+}
+
 export function ImportarClient() {
   const [rows, setRows] = useState<Row[]>([]);
   const [progress, setProgress] = useState<string | null>(null);
+  const [progressPct, setProgressPct] = useState(0);
   const [result, setResult] = useState<{ imported: number; errores: number; detalle: unknown } | null>(null);
 
   function onFile(f: File | null) {
@@ -18,7 +68,8 @@ export function ImportarClient() {
       Papa.parse<Row>(f, {
         header: true,
         skipEmptyLines: true,
-        complete: (r) => setRows((r.data as Row[]).filter((x) => x.nombre && x.precio)),
+        delimiter: "",
+        complete: (r) => setRows(toInternalRows(r.data as Row[])),
       });
       return;
     }
@@ -26,28 +77,34 @@ export function ImportarClient() {
       const wb = XLSX.read(ab);
       const sh = wb.Sheets[wb.SheetNames[0]!]!;
       const data = XLSX.utils.sheet_to_json<Row>(sh, { defval: "" });
-      setRows(data.filter((x) => x.nombre && x.precio));
+      setRows(toInternalRows(data));
     });
   }
 
   async function runImport() {
     setProgress("Importando…");
+    setProgressPct(15);
     setResult(null);
     try {
+      setProgressPct(35);
       const res = await fetch("/api/dashboard/import-productos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rows }),
       });
+      setProgressPct(75);
       const j = (await res.json()) as { imported: number; errores: number; detalleErrores: unknown; error?: string };
       if (!res.ok) {
         setProgress(j.error ?? "Error");
+        setProgressPct(100);
         return;
       }
       setResult({ imported: j.imported, errores: j.errores, detalle: j.detalleErrores });
       setProgress(`Listo: ${j.imported} importados, ${j.errores} errores.`);
+      setProgressPct(100);
     } catch {
       setProgress("Error de red");
+      setProgressPct(100);
     }
   }
 
@@ -110,7 +167,14 @@ export function ImportarClient() {
           </button>
         </div>
       )}
-      {progress && <p className="text-sm text-zinc-600">{progress}</p>}
+      {progress && (
+        <div className="space-y-1">
+          <p className="text-sm text-zinc-600">{progress}</p>
+          <div className="h-2 w-full overflow-hidden rounded bg-zinc-200">
+            <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${progressPct}%` }} />
+          </div>
+        </div>
+      )}
       {result && (
         <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm">
           <p>

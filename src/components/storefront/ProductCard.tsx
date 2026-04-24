@@ -23,6 +23,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
   const href = `/${slug}/producto/${producto.id}`;
   const desc = pct(producto);
   const lista = producto.precio_lista ?? producto.precioOriginal;
+  const precioMayorista = (producto as UIProduct & { precio_mayorista?: number }).precio_mayorista;
   const talleChips = (producto.talle || "")
     .split(/[,\s]+/)
     .map((x) => x.trim())
@@ -30,18 +31,23 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
     .slice(0, 4);
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-zinc-700 bg-[#111111] shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-orange-500/80 hover:shadow-lg">
-      <Link href={href} className="relative block aspect-[4/5] overflow-hidden bg-zinc-900">
+    <article className="group overflow-hidden rounded-2xl border border-[#E0E0E0] bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-[#FF6B00]/80 hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)]">
+      <Link href={href} className="relative block aspect-[4/5] overflow-hidden bg-[#F5F5F5]">
         <Image
-          src={producto.fotos?.[0] ?? "https://picsum.photos/400/500?random=98"}
+          src={producto.fotos?.[0] ?? "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400"}
           alt={producto.nombre}
           fill
           className="object-cover transition duration-300 group-hover:scale-105"
           sizes="(max-width:768px) 50vw, 25vw"
         />
         {desc != null && desc > 0 && (
-          <span className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-rose-600 to-orange-500 px-2 py-1 text-xs font-bold text-white shadow">
-            -{desc}%
+          <span className="absolute left-2 top-2 rounded-full bg-[#FF6B00] px-2 py-1 text-xs font-bold text-white shadow">
+            OFERTA
+          </span>
+        )}
+        {typeof precioMayorista === "number" && precioMayorista > 0 && (
+          <span className="absolute left-2 top-10 rounded-full bg-blue-600 px-2 py-1 text-xs font-bold text-white shadow">
+            MAYORISTA
           </span>
         )}
         {producto.nuevo && (
@@ -54,14 +60,14 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
       <div className="space-y-2 p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="line-clamp-2 text-sm font-bold text-white">{producto.nombre}</p>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-400/90">
+            <p className="line-clamp-2 text-sm font-bold text-[#1A1A1A]">{producto.nombre}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-[#FF6B00]">
               {producto.marca ?? "Marca propia"}
             </p>
             <Link
               href={`/${slug}`}
               onClick={(e) => e.stopPropagation()}
-              className="text-xs text-zinc-400 transition hover:text-orange-400 hover:underline"
+              className="text-xs text-[#555555] transition hover:text-[#FF6B00] hover:underline"
             >
               {producto.tiendas?.nombre ?? "Tienda La Salada"}
             </Link>
@@ -69,7 +75,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
           <button
             type="button"
             onClick={() => setFav((v) => !v)}
-            className="shrink-0 rounded-lg p-1 text-xl leading-none text-zinc-500 transition hover:scale-110 hover:text-rose-400"
+            className="shrink-0 rounded-lg p-1 text-xl leading-none text-[#555555] transition hover:scale-110 hover:text-rose-500"
             aria-label="Favoritos"
           >
             {fav ? "♥" : "♡"}
@@ -77,18 +83,18 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
         </div>
         <div>
           {lista != null && Number(lista) > Number(producto.precio) && (
-            <p className="text-xs text-zinc-500 line-through">
+            <p className="text-xs text-[#555555] line-through">
               ${Number(lista).toLocaleString("es-AR")}
             </p>
           )}
-          <p className="text-lg font-black text-white">${Number(producto.precio).toLocaleString("es-AR")}</p>
+          <p className="text-lg font-black text-[#1A1A1A]">${Number(producto.precio).toLocaleString("es-AR")}</p>
         </div>
         {talleChips.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {talleChips.map((s) => (
               <span
                 key={s}
-                className="rounded border border-zinc-600 px-1.5 py-0.5 text-[10px] font-bold text-zinc-300"
+                className="rounded border border-[#E0E0E0] px-1.5 py-0.5 text-[10px] font-bold text-[#555555]"
               >
                 {s}
               </span>
@@ -98,7 +104,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
         <div className="flex flex-col gap-2 pt-0.5">
           <Link
             href={href}
-            className="block w-full rounded-xl border border-zinc-600 py-2 text-center text-sm font-bold text-zinc-100 transition hover:border-orange-500 hover:bg-zinc-800"
+            className="block w-full rounded-xl border border-[#E0E0E0] py-2 text-center text-sm font-bold text-[#1A1A1A] transition hover:border-[#FF6B00] hover:bg-[#F5F5F5]"
           >
             Ver producto
           </Link>
@@ -108,7 +114,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
               add(producto);
               showToast("Agregado al carrito", "success");
             }}
-            className="w-full rounded-xl bg-orange-500 px-3 py-2 text-sm font-black text-white shadow transition hover:bg-orange-600"
+            className="invisible w-full rounded-xl bg-[#FF6B00] px-3 py-2 text-sm font-black text-white shadow transition hover:bg-[#E05A00] group-hover:visible"
           >
             Agregar al carrito
           </button>

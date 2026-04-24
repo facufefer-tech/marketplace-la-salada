@@ -112,6 +112,50 @@ function baseProductFromBody(body: Record<string, unknown>) {
   };
 }
 
+function basicProductoPayload(
+  p: ReturnType<typeof baseProductFromBody>,
+  tiendaId: string,
+) {
+  return {
+    tienda_id: tiendaId,
+    nombre: p.nombre,
+    descripcion: p.descripcion,
+    precio: p.precio,
+    categoria: p.categoria,
+    talle: p.talle,
+    color: p.color,
+    stock: p.stock,
+    fotos: p.fotos,
+    activo: p.activo,
+    destacado: p.destacado,
+  };
+}
+
+async function insertProductoCompat(
+  client: ReturnType<typeof createSupabaseRouteClient> | ReturnType<typeof createSupabaseAdminClient>,
+  tiendaId: string,
+  insert: ReturnType<typeof baseProductFromBody>,
+) {
+  let { data, error } = await client.from("productos").insert({ ...insert, tienda_id: tiendaId }).select().single();
+  if (error && error.message.toLowerCase().includes("could not find the")) {
+    ({ data, error } = await client.from("productos").insert(basicProductoPayload(insert, tiendaId)).select().single());
+  }
+  return { data, error };
+}
+
+async function updateProductoCompat(
+  client: ReturnType<typeof createSupabaseRouteClient>,
+  id: string,
+  fullPatch: Record<string, unknown>,
+  basicPatch: Record<string, unknown>,
+) {
+  let { data, error } = await client.from("productos").update(fullPatch).eq("id", id).select().single();
+  if (error && error.message.toLowerCase().includes("could not find the")) {
+    ({ data, error } = await client.from("productos").update(basicPatch).eq("id", id).select().single());
+  }
+  return { data, error };
+}
+
 export async function GET() {
   const supabase = createSupabaseRouteClient();
   const { user, tiendaId } = await getMyTiendaId(supabase);
@@ -147,11 +191,7 @@ export async function POST(req: NextRequest) {
   const variants = body.variants;
 
   if (user && tiendaId) {
-    const { data, error } = await supabase
-      .from("productos")
-      .insert({ ...insert, tienda_id: tiendaId })
-      .select()
-      .single();
+    const { data, error } = await insertProductoCompat(supabase, tiendaId, insert);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     if (data?.id) {
       try {
@@ -178,11 +218,7 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createSupabaseAdminClient();
-  const { data, error } = await admin
-    .from("productos")
-    .insert({ ...insert, tienda_id: demoTiendaId })
-    .select()
-    .single();
+  const { data, error } = await insertProductoCompat(admin, demoTiendaId, insert);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data, demo: true });
 }
@@ -234,8 +270,22 @@ export async function PUT(req: NextRequest) {
   const cleaned = Object.fromEntries(
     Object.entries(patch).filter(([, v]) => v !== undefined),
   ) as Record<string, unknown>;
+  const basic = Object.fromEntries(
+    Object.entries({
+      nombre: b.nombre,
+      descripcion: b.descripcion,
+      precio: b.precio,
+      categoria: b.categoria,
+      talle: b.talle,
+      color: b.color,
+      stock: b.stock,
+      fotos: b.fotos,
+      activo: b.activo,
+      destacado: b.destacado,
+    }).filter(([, v]) => v !== undefined),
+  ) as Record<string, unknown>;
 
-  const { data, error } = await supabase.from("productos").update(cleaned).eq("id", id).select().single();
+  const { data, error } = await updateProductoCompat(supabase, id, cleaned, basic);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (Object.prototype.hasOwnProperty.call(body, "variants")) {
     try {

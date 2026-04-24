@@ -56,8 +56,11 @@ export function AuthForm() {
         setMsg("Cuenta creada. Iniciá sesión manualmente: " + errIn.message);
         return;
       }
-      router.push(next);
-      router.refresh();
+      setMsg("Cuenta creada con éxito. Redirigiendo al panel…");
+      window.setTimeout(() => {
+        router.push(next);
+        router.refresh();
+      }, 900);
     } finally {
       setLoading(false);
     }
@@ -103,7 +106,11 @@ export function AuthForm() {
             />
           </label>
         )}
-        {msg && <p className="text-sm text-amber-300">{msg}</p>}
+        {msg && (
+          <p className={`text-sm ${msg.toLowerCase().includes("éxito") ? "text-emerald-300" : "text-amber-300"}`}>
+            {msg}
+          </p>
+        )}
         <button
           type="submit"
           disabled={loading}

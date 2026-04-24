@@ -18,22 +18,31 @@ export type DemoProduct = Producto & {
   nuevo: boolean;
 };
 
+const imagenesMercado = [
+  "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1600",
+  "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=800",
+  "https://images.unsplash.com/photo-1573408301185-9519f94f8be5?w=800",
+  "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800",
+  "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=800",
+  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800",
+];
+
 export const demoStores: DemoStore[] = [
-  { id: "s1", slug: "urbanstyle-ba", nombre: "UrbanStyle BA", descripcion: "Streetwear urbano para hombre y mujer.", owner: "Kevin Benítez", avatarUrl: "https://i.pravatar.cc/150?img=11", bannerUrl: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80", rating: 4.8, ventasMes: 312 },
-  { id: "s2", slug: "moda-femenina-ceci", nombre: "Ceci Studio", descripcion: "Moda femenina diaria y de oficina.", owner: "Cecilia Ríos", avatarUrl: "https://i.pravatar.cc/150?img=32", bannerUrl: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=1200&q=80", rating: 4.9, ventasMes: 268 },
-  { id: "s3", slug: "el-vaquero", nombre: "Vaquero Pro", descripcion: "Jean, gabardina y trabajo pesado.", owner: "Roberto Gómez", avatarUrl: "https://i.pravatar.cc/150?img=53", bannerUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=1200&q=80", rating: 4.7, ventasMes: 227 },
-  { id: "s4", slug: "kids-fashion", nombre: "Kids Trend", descripcion: "Ropa infantil cómoda y colorida.", owner: "Mariela Torres", avatarUrl: "https://i.pravatar.cc/150?img=46", bannerUrl: "https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?auto=format&fit=crop&w=1200&q=80", rating: 4.8, ventasMes: 198 },
-  { id: "s5", slug: "zapateria-belgrano", nombre: "Belgrano Steps", descripcion: "Calzado urbano para toda la familia.", owner: "Ariel Sánchez", avatarUrl: "https://i.pravatar.cc/150?img=20", bannerUrl: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1200&q=80", rating: 4.6, ventasMes: 184 },
-  { id: "s6", slug: "glamour-night", nombre: "Glam Night Label", descripcion: "Looks de noche y eventos.", owner: "Karen Valdez", avatarUrl: "https://i.pravatar.cc/150?img=28", bannerUrl: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80", rating: 4.9, ventasMes: 143 },
-  { id: "s7", slug: "sport-total", nombre: "SportPeak", descripcion: "Prendas técnicas deportivas.", owner: "Fernando Almada", avatarUrl: "https://i.pravatar.cc/150?img=15", bannerUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80", rating: 4.7, ventasMes: 164 },
-  { id: "s8", slug: "basicos-premium", nombre: "BaseLab", descripcion: "Básicos premium en algodón.", owner: "Lucía Pereyra", avatarUrl: "https://i.pravatar.cc/150?img=39", bannerUrl: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=1200&q=80", rating: 4.8, ventasMes: 211 },
-  { id: "s9", slug: "accesorios-wow", nombre: "WOW Bags", descripcion: "Accesorios y marroquinería.", owner: "Jesica Vera", avatarUrl: "https://i.pravatar.cc/150?img=31", bannerUrl: "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=1200&q=80", rating: 4.6, ventasMes: 137 },
-  { id: "s10", slug: "invierno-calido", nombre: "Invierno Norte", descripcion: "Abrigos, paños y camperas.", owner: "Ezequiel Montenegro", avatarUrl: "https://i.pravatar.cc/150?img=67", bannerUrl: "https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=1200&q=80", rating: 4.8, ventasMes: 173 },
-  { id: "s11", slug: "verano-eterno", nombre: "Summer Loop", descripcion: "Colección verano y playa.", owner: "Yanina Silva", avatarUrl: "https://i.pravatar.cc/150?img=25", bannerUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80", rating: 4.9, ventasMes: 205 },
-  { id: "s12", slug: "denim-co", nombre: "Denim Republic", descripcion: "Especialistas en denim.", owner: "Leandro Quiroga", avatarUrl: "https://i.pravatar.cc/150?img=59", bannerUrl: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=1200&q=80", rating: 4.7, ventasMes: 191 },
-  { id: "s13", slug: "ejecutiva-moda", nombre: "Exec Femme", descripcion: "Sastrería moderna femenina.", owner: "Soledad Medina", avatarUrl: "https://i.pravatar.cc/150?img=36", bannerUrl: "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=1200&q=80", rating: 4.8, ventasMes: 121 },
-  { id: "s14", slug: "street-kings", nombre: "Kings Dept", descripcion: "Moda masculina urbana.", owner: "Darío Villalba", avatarUrl: "https://i.pravatar.cc/150?img=68", bannerUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80", rating: 4.6, ventasMes: 157 },
-  { id: "s15", slug: "outlet-express", nombre: "Outlet Flash", descripcion: "Saldos y oportunidades.", owner: "Noelia Páez", avatarUrl: "https://i.pravatar.cc/150?img=44", bannerUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80", rating: 4.5, ventasMes: 289 },
+  { id: "s1", slug: "urbanstyle-ba", nombre: "UrbanStyle BA", descripcion: "Streetwear urbano para hombre y mujer.", owner: "Kevin Benítez", avatarUrl: "https://i.pravatar.cc/150?img=11", bannerUrl: imagenesMercado[0], rating: 4.8, ventasMes: 312 },
+  { id: "s2", slug: "moda-femenina-ceci", nombre: "Ceci Studio", descripcion: "Moda femenina diaria y de oficina.", owner: "Cecilia Ríos", avatarUrl: "https://i.pravatar.cc/150?img=32", bannerUrl: imagenesMercado[1], rating: 4.9, ventasMes: 268 },
+  { id: "s3", slug: "el-vaquero", nombre: "Vaquero Pro", descripcion: "Jean, gabardina y trabajo pesado.", owner: "Roberto Gómez", avatarUrl: "https://i.pravatar.cc/150?img=53", bannerUrl: imagenesMercado[2], rating: 4.7, ventasMes: 227 },
+  { id: "s4", slug: "kids-fashion", nombre: "Kids Trend", descripcion: "Ropa infantil cómoda y colorida.", owner: "Mariela Torres", avatarUrl: "https://i.pravatar.cc/150?img=46", bannerUrl: imagenesMercado[3], rating: 4.8, ventasMes: 198 },
+  { id: "s5", slug: "zapateria-belgrano", nombre: "Belgrano Steps", descripcion: "Calzado urbano para toda la familia.", owner: "Ariel Sánchez", avatarUrl: "https://i.pravatar.cc/150?img=20", bannerUrl: imagenesMercado[4], rating: 4.6, ventasMes: 184 },
+  { id: "s6", slug: "glamour-night", nombre: "Glam Night Label", descripcion: "Looks de noche y eventos.", owner: "Karen Valdez", avatarUrl: "https://i.pravatar.cc/150?img=28", bannerUrl: imagenesMercado[5], rating: 4.9, ventasMes: 143 },
+  { id: "s7", slug: "sport-total", nombre: "SportPeak", descripcion: "Prendas técnicas deportivas.", owner: "Fernando Almada", avatarUrl: "https://i.pravatar.cc/150?img=15", bannerUrl: imagenesMercado[0], rating: 4.7, ventasMes: 164 },
+  { id: "s8", slug: "basicos-premium", nombre: "BaseLab", descripcion: "Básicos premium en algodón.", owner: "Lucía Pereyra", avatarUrl: "https://i.pravatar.cc/150?img=39", bannerUrl: imagenesMercado[1], rating: 4.8, ventasMes: 211 },
+  { id: "s9", slug: "accesorios-wow", nombre: "WOW Bags", descripcion: "Accesorios y marroquinería.", owner: "Jesica Vera", avatarUrl: "https://i.pravatar.cc/150?img=31", bannerUrl: imagenesMercado[2], rating: 4.6, ventasMes: 137 },
+  { id: "s10", slug: "invierno-calido", nombre: "Invierno Norte", descripcion: "Abrigos, paños y camperas.", owner: "Ezequiel Montenegro", avatarUrl: "https://i.pravatar.cc/150?img=67", bannerUrl: imagenesMercado[3], rating: 4.8, ventasMes: 173 },
+  { id: "s11", slug: "verano-eterno", nombre: "Summer Loop", descripcion: "Colección verano y playa.", owner: "Yanina Silva", avatarUrl: "https://i.pravatar.cc/150?img=25", bannerUrl: imagenesMercado[4], rating: 4.9, ventasMes: 205 },
+  { id: "s12", slug: "denim-co", nombre: "Denim Republic", descripcion: "Especialistas en denim.", owner: "Leandro Quiroga", avatarUrl: "https://i.pravatar.cc/150?img=59", bannerUrl: imagenesMercado[5], rating: 4.7, ventasMes: 191 },
+  { id: "s13", slug: "ejecutiva-moda", nombre: "Exec Femme", descripcion: "Sastrería moderna femenina.", owner: "Soledad Medina", avatarUrl: "https://i.pravatar.cc/150?img=36", bannerUrl: imagenesMercado[0], rating: 4.8, ventasMes: 121 },
+  { id: "s14", slug: "street-kings", nombre: "Kings Dept", descripcion: "Moda masculina urbana.", owner: "Darío Villalba", avatarUrl: "https://i.pravatar.cc/150?img=68", bannerUrl: imagenesMercado[1], rating: 4.6, ventasMes: 157 },
+  { id: "s15", slug: "outlet-express", nombre: "Outlet Flash", descripcion: "Saldos y oportunidades.", owner: "Noelia Páez", avatarUrl: "https://i.pravatar.cc/150?img=44", bannerUrl: imagenesMercado[5], rating: 4.5, ventasMes: 289 },
 ];
 
 const talles = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -41,32 +50,32 @@ const colores = ["Negro", "Blanco", "Azul", "Rojo", "Verde", "Gris", "Beige"];
 
 const photoByCategory: Record<string, string[]> = {
   Remeras: [
-    "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1583743814966-8936f37f4678?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[0],
+    imagenesMercado[2],
   ],
   Pantalones: [
-    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[3],
+    imagenesMercado[1],
   ],
   Vestidos: [
-    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[4],
+    imagenesMercado[5],
   ],
   Calzado: [
-    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[1],
+    imagenesMercado[2],
   ],
   Accesorios: [
-    "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[5],
+    imagenesMercado[3],
   ],
   Abrigos: [
-    "https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1548624313-0396c75f5e34?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[4],
+    imagenesMercado[0],
   ],
   Deportivo: [
-    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=900&q=80",
+    imagenesMercado[2],
+    imagenesMercado[1],
   ],
 };
 
