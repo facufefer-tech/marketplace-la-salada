@@ -86,6 +86,9 @@ export default async function TiendaPage({ params }: Props) {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {list.map((p) => {
           const img = p.fotos?.[0];
+          const ui = p as Producto & { precioOriginal?: number; descuentoPct?: number };
+          const maybeOriginal = typeof ui.precioOriginal === "number" ? ui.precioOriginal : null;
+          const maybeDiscount = typeof ui.descuentoPct === "number" ? ui.descuentoPct : null;
           return (
             <Link
               key={p.id}
@@ -106,7 +109,15 @@ export default async function TiendaPage({ params }: Props) {
               </div>
               <div className="p-3">
                 <p className="line-clamp-2 text-sm font-semibold text-zinc-900 group-hover:text-orange-500">{p.nombre}</p>
+                {maybeOriginal && (
+                  <p className="mt-1 text-xs text-zinc-400 line-through">
+                    ${Number(maybeOriginal).toLocaleString("es-AR")}
+                  </p>
+                )}
                 <p className="mt-1 text-base font-extrabold text-zinc-900">${Number(p.precio).toLocaleString("es-AR")}</p>
+                {maybeDiscount && (
+                  <p className="text-xs font-bold text-red-500">-{maybeDiscount}% OFF</p>
+                )}
               </div>
             </Link>
           );

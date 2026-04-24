@@ -12,6 +12,7 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
   const add = useCartStore((s) => s.add);
   const [fav, setFav] = useState(false);
   const slug = producto.tiendas?.slug ?? "tienda";
+  const badgeSizes = ["S", "M", "L", "XL"];
   return (
     <article className="group overflow-hidden rounded-2xl border border-zinc-700 bg-[#111111] shadow-sm transition hover:-translate-y-0.5 hover:border-orange-500 hover:shadow-lg">
       <Link href={`/${slug}/producto/${producto.id}`} className="relative block aspect-[4/5] overflow-hidden bg-zinc-900">
@@ -35,7 +36,9 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
           <div className="min-w-0">
             <p className="line-clamp-2 text-sm font-bold text-white">{producto.nombre}</p>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-400">{producto.marca ?? "Marca propia"}</p>
-            <p className="text-xs text-zinc-400">{producto.tiendas?.nombre ?? "Tienda La Salada"}</p>
+            <Link href={`/${slug}`} className="text-xs text-zinc-400 hover:text-orange-400 hover:underline">
+              {producto.tiendas?.nombre ?? "Tienda La Salada"}
+            </Link>
           </div>
           <button type="button" onClick={() => setFav((v) => !v)} className="text-lg leading-none text-zinc-300">
             {fav ? "♥" : "♡"}
@@ -44,6 +47,13 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
         <div>
           {producto.precioOriginal && <p className="text-xs text-zinc-500 line-through">${producto.precioOriginal.toLocaleString("es-AR")}</p>}
           <p className="text-lg font-black text-white">${Number(producto.precio).toLocaleString("es-AR")}</p>
+        </div>
+        <div className="flex gap-1">
+          {badgeSizes.map((s) => (
+            <span key={s} className="rounded border border-zinc-600 px-1.5 py-0.5 text-[10px] font-bold text-zinc-300">
+              {s}
+            </span>
+          ))}
         </div>
         <button
           type="button"

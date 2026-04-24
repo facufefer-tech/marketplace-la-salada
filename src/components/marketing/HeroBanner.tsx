@@ -1,12 +1,27 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { demoProducts } from "@/lib/demo-data";
 
 const slides = [
-  { title: "Hasta 60% OFF en moda", text: "Miles de prendas renovadas todas las semanas.", cta: "Ver ofertas" },
-  { title: "Nuevas colecciones de verano", text: "Vestidos, shorts y looks frescos para esta temporada.", cta: "Explorar verano" },
-  { title: "Envíos a todo el país", text: "Comprá seguro y recibí en tu casa o retirás en el puesto.", cta: "Cómo comprar" },
+  {
+    title: "Hasta 60% OFF en moda",
+    text: "Miles de prendas renovadas todas las semanas.",
+    cta: "Ver ofertas",
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80",
+  },
+  {
+    title: "Nuevas colecciones de verano",
+    text: "Vestidos, shorts y looks frescos para esta temporada.",
+    cta: "Explorar verano",
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
+  },
+  {
+    title: "Envíos a todo el país",
+    text: "Comprá seguro y recibí en tu casa o retirás en el puesto.",
+    cta: "Cómo comprar",
+    image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=80",
+  },
 ];
 
 export function HeroBanner() {
@@ -30,14 +45,8 @@ export function HeroBanner() {
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {demoProducts.slice(0, 4).map((p) => (
-            <div
-              key={p.id}
-              className="h-28 rounded-xl border border-white/20 bg-cover bg-center sm:h-36"
-              style={{ backgroundImage: `url(${p.fotos[0]})` }}
-            />
-          ))}
+        <div className="relative h-64 overflow-hidden rounded-xl border border-white/20 bg-black/30 sm:h-72">
+          <Image src={slide.image} alt={slide.title} fill className="object-contain" sizes="(max-width:1024px) 100vw, 50vw" />
         </div>
       </div>
     </section>
