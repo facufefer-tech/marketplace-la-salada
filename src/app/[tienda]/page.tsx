@@ -26,7 +26,7 @@ export default async function TiendaPage({ params }: Props) {
   const { data: productos } = await supabase
     .from("productos")
     .select("*")
-    .eq("tienda_id", tienda.id)
+    .eq("tienda_id", tienda?.id ?? "__none__")
     .eq("activo", true)
     .order("destacado", { ascending: false })
     .order("created_at", { ascending: false });
@@ -76,7 +76,7 @@ export default async function TiendaPage({ params }: Props) {
               Plan {viewStore.plan} · Comisión plataforma {Number(viewStore.comision_pct)}%
             </p>
             {"owner" in viewStore && typeof viewStore.owner === "string" && (
-              <p className="mt-1 text-xs text-zinc-500">Feriante: {viewStore.owner}</p>
+              <p className="mt-1 text-xs text-zinc-500">Marca gestionada por: {viewStore.owner}</p>
             )}
           </div>
         </div>

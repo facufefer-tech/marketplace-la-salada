@@ -43,7 +43,7 @@ export default function HomePage({ searchParams }: HomeProps) {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {products.slice(0, 24).map((p) => (
+          {products.slice(0, 50).map((p) => (
             <ProductCard key={p.id} producto={p} />
           ))}
         </div>
