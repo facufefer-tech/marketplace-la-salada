@@ -1,3 +1,5 @@
+import { SerSocioForm } from "./SerSocioForm";
+
 export default function SerSocioPage() {
   return (
     <main className="bg-[#0a0a0a] text-zinc-100">
@@ -26,13 +28,7 @@ export default function SerSocioPage() {
             <p className="text-sm text-zinc-400">Productos ilimitados + posicionamiento destacado</p>
           </div>
         </div>
-        <form className="space-y-3 rounded-2xl border border-zinc-700 bg-[#111111] p-5 shadow-sm">
-          <h2 className="text-2xl font-extrabold">Formulario para feriantes</h2>
-          <input placeholder="Nombre y apellido" className="w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
-          <input placeholder="Email" className="w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
-          <textarea placeholder="Contanos qué vendés" className="w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" rows={4} />
-          <button className="rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">Quiero sumarme</button>
-        </form>
+        <SerSocioForm />
         <div className="grid gap-3 md:grid-cols-3">
           {[
             "“Tripliqué mis ventas en 2 meses.” — Carla, Moda Femenina",

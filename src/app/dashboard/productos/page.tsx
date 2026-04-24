@@ -42,6 +42,12 @@ export default async function DashboardProductosPage() {
             /{tienda.slug}
           </Link>
         </p>
+        <Link
+          href="/dashboard/productos/nuevo"
+          className="mt-3 inline-block rounded-lg bg-orange-500 px-4 py-2 text-sm font-black text-white"
+        >
+          Cargar producto nuevo
+        </Link>
       </div>
 
       <DashboardProductosClient productos={list} />
