@@ -1,0 +1,4 @@
+nombre,descripcion,precio,categoria,talle,color,stock,foto_url,destacado,nuevo
+Remera básica unisex,Algodón peinado premium,12990,Remeras,M,Negro,25,https://picsum.photos/400/500?random=101,true,false
+Jean recto clásico,Denim elastizado tiro medio,24990,Pantalones,L,Azul,18,https://picsum.photos/400/500?random=102,false,true
+Vestido midi satén,Ideal noche y eventos,32990,Vestidos,S,Rojo,10,https://picsum.photos/400/500?random=103,true,true

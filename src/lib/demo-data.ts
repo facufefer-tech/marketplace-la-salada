@@ -5,6 +5,11 @@ export type DemoStore = {
   slug: string;
   nombre: string;
   descripcion: string;
+  owner: string;
+  avatarUrl: string;
+  bannerUrl: string;
+  rating: number;
+  ventasMes: number;
 };
 
 export type DemoProduct = Producto & {
@@ -14,21 +19,21 @@ export type DemoProduct = Producto & {
 };
 
 export const demoStores: DemoStore[] = [
-  { id: "s1", slug: "urbanstyle-ba", nombre: "UrbanStyle BA", descripcion: "Ropa urbana y streetwear" },
-  { id: "s2", slug: "moda-femenina-ceci", nombre: "Moda Femenina Ceci", descripcion: "Vestidos y blusas" },
-  { id: "s3", slug: "el-vaquero", nombre: "El Vaquero", descripcion: "Jeans y ropa de trabajo" },
-  { id: "s4", slug: "kids-fashion", nombre: "Kids Fashion", descripcion: "Ropa infantil" },
-  { id: "s5", slug: "zapateria-belgrano", nombre: "Zapatería Belgrano", descripcion: "Calzado familiar" },
-  { id: "s6", slug: "glamour-night", nombre: "Glamour Night", descripcion: "Fiesta y eventos" },
-  { id: "s7", slug: "sport-total", nombre: "Sport Total", descripcion: "Ropa deportiva" },
-  { id: "s8", slug: "basicos-premium", nombre: "Básicos Premium", descripcion: "Remeras de calidad" },
-  { id: "s9", slug: "accesorios-wow", nombre: "Accesorios Wow", descripcion: "Carteras y bijou" },
-  { id: "s10", slug: "invierno-calido", nombre: "Invierno Cálido", descripcion: "Abrigos y camperas" },
-  { id: "s11", slug: "verano-eterno", nombre: "Verano Eterno", descripcion: "Playa y verano" },
-  { id: "s12", slug: "denim-co", nombre: "Denim & Co", descripcion: "Todo en jean" },
-  { id: "s13", slug: "ejecutiva-moda", nombre: "Ejecutiva Moda", descripcion: "Formal mujer" },
-  { id: "s14", slug: "street-kings", nombre: "Street Kings", descripcion: "Moda masculina urbana" },
-  { id: "s15", slug: "outlet-express", nombre: "Outlet Express", descripcion: "Saldos y ofertas" },
+  { id: "s1", slug: "urbanstyle-ba", nombre: "UrbanStyle BA", descripcion: "Ropa urbana y streetwear", owner: "Kevin Benítez", avatarUrl: "https://i.pravatar.cc/150?img=11", bannerUrl: "https://picsum.photos/seed/store1/1200/420", rating: 4.8, ventasMes: 312 },
+  { id: "s2", slug: "moda-femenina-ceci", nombre: "Moda Femenina Ceci", descripcion: "Vestidos y blusas", owner: "Cecilia Ríos", avatarUrl: "https://i.pravatar.cc/150?img=32", bannerUrl: "https://picsum.photos/seed/store2/1200/420", rating: 4.9, ventasMes: 268 },
+  { id: "s3", slug: "el-vaquero", nombre: "El Vaquero", descripcion: "Jeans y ropa de trabajo", owner: "Roberto Gómez", avatarUrl: "https://i.pravatar.cc/150?img=53", bannerUrl: "https://picsum.photos/seed/store3/1200/420", rating: 4.7, ventasMes: 227 },
+  { id: "s4", slug: "kids-fashion", nombre: "Kids Fashion", descripcion: "Ropa infantil", owner: "Mariela Torres", avatarUrl: "https://i.pravatar.cc/150?img=46", bannerUrl: "https://picsum.photos/seed/store4/1200/420", rating: 4.8, ventasMes: 198 },
+  { id: "s5", slug: "zapateria-belgrano", nombre: "Zapatería Belgrano", descripcion: "Calzado familiar", owner: "Ariel Sánchez", avatarUrl: "https://i.pravatar.cc/150?img=20", bannerUrl: "https://picsum.photos/seed/store5/1200/420", rating: 4.6, ventasMes: 184 },
+  { id: "s6", slug: "glamour-night", nombre: "Glamour Night", descripcion: "Fiesta y eventos", owner: "Karen Valdez", avatarUrl: "https://i.pravatar.cc/150?img=28", bannerUrl: "https://picsum.photos/seed/store6/1200/420", rating: 4.9, ventasMes: 143 },
+  { id: "s7", slug: "sport-total", nombre: "Sport Total", descripcion: "Ropa deportiva", owner: "Fernando Almada", avatarUrl: "https://i.pravatar.cc/150?img=15", bannerUrl: "https://picsum.photos/seed/store7/1200/420", rating: 4.7, ventasMes: 164 },
+  { id: "s8", slug: "basicos-premium", nombre: "Básicos Premium", descripcion: "Remeras de calidad", owner: "Lucía Pereyra", avatarUrl: "https://i.pravatar.cc/150?img=39", bannerUrl: "https://picsum.photos/seed/store8/1200/420", rating: 4.8, ventasMes: 211 },
+  { id: "s9", slug: "accesorios-wow", nombre: "Accesorios Wow", descripcion: "Carteras y bijou", owner: "Jesica Vera", avatarUrl: "https://i.pravatar.cc/150?img=31", bannerUrl: "https://picsum.photos/seed/store9/1200/420", rating: 4.6, ventasMes: 137 },
+  { id: "s10", slug: "invierno-calido", nombre: "Invierno Cálido", descripcion: "Abrigos y camperas", owner: "Ezequiel Montenegro", avatarUrl: "https://i.pravatar.cc/150?img=67", bannerUrl: "https://picsum.photos/seed/store10/1200/420", rating: 4.8, ventasMes: 173 },
+  { id: "s11", slug: "verano-eterno", nombre: "Verano Eterno", descripcion: "Playa y verano", owner: "Yanina Silva", avatarUrl: "https://i.pravatar.cc/150?img=25", bannerUrl: "https://picsum.photos/seed/store11/1200/420", rating: 4.9, ventasMes: 205 },
+  { id: "s12", slug: "denim-co", nombre: "Denim & Co", descripcion: "Todo en jean", owner: "Leandro Quiroga", avatarUrl: "https://i.pravatar.cc/150?img=59", bannerUrl: "https://picsum.photos/seed/store12/1200/420", rating: 4.7, ventasMes: 191 },
+  { id: "s13", slug: "ejecutiva-moda", nombre: "Ejecutiva Moda", descripcion: "Formal mujer", owner: "Soledad Medina", avatarUrl: "https://i.pravatar.cc/150?img=36", bannerUrl: "https://picsum.photos/seed/store13/1200/420", rating: 4.8, ventasMes: 121 },
+  { id: "s14", slug: "street-kings", nombre: "Street Kings", descripcion: "Moda masculina urbana", owner: "Darío Villalba", avatarUrl: "https://i.pravatar.cc/150?img=68", bannerUrl: "https://picsum.photos/seed/store14/1200/420", rating: 4.6, ventasMes: 157 },
+  { id: "s15", slug: "outlet-express", nombre: "Outlet Express", descripcion: "Saldos y ofertas", owner: "Noelia Páez", avatarUrl: "https://i.pravatar.cc/150?img=44", bannerUrl: "https://picsum.photos/seed/store15/1200/420", rating: 4.5, ventasMes: 289 },
 ];
 
 const names = [

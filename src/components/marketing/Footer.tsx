@@ -25,23 +25,23 @@ const cols = [
 
 export function Footer() {
   return (
-    <footer className="mt-14 border-t border-zinc-200 bg-white">
+    <footer className="mt-14 border-t border-zinc-800 bg-[#0c0c0c]">
       <div className="container-shell grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="text-2xl font-extrabold tracking-tight text-zinc-900">
+          <p className="text-2xl font-extrabold tracking-tight text-white">
             La <span className="text-orange-500">Salada</span>
           </p>
-          <p className="mt-3 text-sm text-zinc-600">
+          <p className="mt-3 text-sm text-zinc-400">
             Moda mayorista y minorista con precios reales de feria para toda Argentina.
           </p>
         </div>
         {cols.map((col) => (
           <div key={col.title}>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-zinc-900">{col.title}</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-white">{col.title}</h3>
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-sm text-zinc-600 hover:text-orange-500">
+                  <Link href={l.href} className="text-sm text-zinc-400 hover:text-orange-500">
                     {l.label}
                   </Link>
                 </li>
@@ -50,8 +50,8 @@ export function Footer() {
           </div>
         ))}
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wide text-zinc-900">Redes sociales</h3>
-          <ul className="mt-3 space-y-2 text-sm text-zinc-600">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-white">Redes sociales</h3>
+          <ul className="mt-3 space-y-2 text-sm text-zinc-400">
             <li>@lasalada.marketplace</li>
             <li>facebook.com/lasalada</li>
             <li>TikTok: @lasalada.oficial</li>

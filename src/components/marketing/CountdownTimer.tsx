@@ -12,13 +12,13 @@ export function CountdownTimer() {
   const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
   const s = String(seconds % 60).padStart(2, "0");
   return (
-    <section className="rounded-2xl border border-red-200 bg-red-50 p-4">
+    <section className="rounded-2xl border border-red-500/40 bg-[#1a0f10] p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-red-500">Ofertas del día</p>
-          <h3 className="text-xl font-extrabold text-zinc-900">Terminan en {h}:{m}:{s}</h3>
+          <p className="text-xs font-bold uppercase tracking-wide text-red-400">Ofertas del día</p>
+          <h3 className="text-xl font-black text-white">Terminan en {h}:{m}:{s}</h3>
         </div>
-        <button className="rounded-xl bg-red-500 px-4 py-2 text-sm font-bold text-white">Ver todas</button>
+        <button className="rounded-xl bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600">Ver todas</button>
       </div>
     </section>
   );

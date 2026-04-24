@@ -43,8 +43,9 @@ export default async function TiendaPage({ params }: Props) {
           descripcion: fallbackStore.descripcion,
           plan: "free",
           comision_pct: 5,
-          banner_url: null,
-          logo_url: null,
+          banner_url: fallbackStore.bannerUrl,
+          logo_url: fallbackStore.avatarUrl,
+          owner: fallbackStore.owner,
         }
       : null);
   if (!viewStore) notFound();
@@ -74,6 +75,9 @@ export default async function TiendaPage({ params }: Props) {
             <p className="mt-2 text-xs text-zinc-500">
               Plan {viewStore.plan} · Comisión plataforma {Number(viewStore.comision_pct)}%
             </p>
+            {"owner" in viewStore && typeof viewStore.owner === "string" && (
+              <p className="mt-1 text-xs text-zinc-500">Feriante: {viewStore.owner}</p>
+            )}
           </div>
         </div>
       </div>

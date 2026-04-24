@@ -31,7 +31,7 @@ export function Header() {
 
   const showSearch = pathname === "/";
   const showMenu = !pathname.startsWith("/dashboard") && !pathname.startsWith("/admin");
-  const cats = ["Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios", "Ofertas"];
+  const cats = ["Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios", "Ofertas", "Feriantes"];
 
   return (
     <>
@@ -60,7 +60,7 @@ export function Header() {
 
           <nav className="ml-auto flex items-center gap-2 sm:gap-3">
             <Link
-              href="/dashboard"
+              href="/feriantes"
               className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
             >
               Feriantes

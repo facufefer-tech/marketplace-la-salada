@@ -12,12 +12,12 @@ const categories = [
 export function CategoryGrid() {
   return (
     <section>
-      <h2 className="mb-4 text-2xl font-extrabold text-zinc-900">Categorías populares</h2>
+      <h2 className="mb-4 text-3xl font-black text-white">Categorías populares</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {categories.map(([emoji, label]) => (
-          <button key={label} className="rounded-2xl border border-zinc-200 bg-white p-4 text-center shadow-sm hover:border-orange-300 hover:shadow-md">
-            <p className="text-3xl">{emoji}</p>
-            <p className="mt-2 text-sm font-bold text-zinc-800">{label}</p>
+          <button key={label} className="rounded-2xl border border-zinc-700 bg-[#111111] p-5 text-center shadow-sm hover:border-orange-500 hover:shadow-[0_0_0_1px_#f97316]">
+            <p className="text-4xl">{emoji}</p>
+            <p className="mt-2 text-base font-extrabold text-zinc-100">{label}</p>
           </button>
         ))}
       </div>

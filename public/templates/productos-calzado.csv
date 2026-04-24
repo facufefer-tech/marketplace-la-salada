@@ -1,0 +1,4 @@
+nombre,descripcion,precio,categoria,talle,color,stock,foto_url,destacado,nuevo
+Zapatilla urbana cuero eco,Base antideslizante y plantilla soft,45990,Calzado,42,Negro,14,https://picsum.photos/400/500?random=121,true,false
+Bota caña corta,Ideal invierno y media estación,53990,Calzado,38,Beige,9,https://picsum.photos/400/500?random=122,false,true
+Sandalia plataforma,Súper liviana y cómoda para verano,28990,Calzado,37,Dorado,15,https://picsum.photos/400/500?random=123,true,true

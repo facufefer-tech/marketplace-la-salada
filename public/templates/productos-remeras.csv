@@ -1,0 +1,4 @@
+nombre,descripcion,precio,categoria,talle,color,stock,foto_url,destacado,nuevo
+Remera oversize street,Algodón 24/1 estampado frontal,14990,Remeras,XL,Blanco,30,https://picsum.photos/400/500?random=111,true,true
+Remera lisa premium,Cuello reforzado calidad exportación,11990,Remeras,M,Gris,40,https://picsum.photos/400/500?random=112,false,false
+Top ribb manga corta,Elastizado y cómodo para todos los días,10990,Remeras,S,Negro,22,https://picsum.photos/400/500?random=113,false,true
