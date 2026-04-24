@@ -15,10 +15,13 @@ export type Tienda = {
   slug: string;
   nombre: string;
   descripcion: string | null;
+  descripcion_larga?: string | null;
   descripcion_html?: string | null;
   logo_url: string | null;
   banner_url: string | null;
+  banner_texto?: string | null;
   banner_text?: string | null;
+  color_principal?: string | null;
   color_primario?: string | null;
   whatsapp: string | null;
   instagram: string | null;
@@ -47,10 +50,14 @@ export type Producto = {
   marca?: string | null;
   descripcion: string | null;
   precio: number;
+  precio_mayorista?: number | null;
+  precio_promocional?: number | null;
   precio_lista?: number | null;
   categoria: string | null;
   talle: string | null;
   color: string | null;
+  tallas?: string[] | null;
+  colores?: string[] | null;
   stock: number;
   peso_gramos?: number | null;
   material?: string | null;

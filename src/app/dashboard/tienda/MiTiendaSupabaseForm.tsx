@@ -31,9 +31,9 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
   const [horarios, setHorarios] = useState(initial?.horarios ?? "");
   const [miHistoria, setMiHistoria] = useState(initial?.mi_historia ?? "");
   const [historiaFoto, setHistoriaFoto] = useState(initial?.historia_foto_url ?? "");
-  const [colorPrimario, setColorPrimario] = useState(initial?.color_primario ?? "#f97316");
-  const [bannerText, setBannerText] = useState(initial?.banner_text ?? "");
-  const [descripcionHtml, setDescripcionHtml] = useState(initial?.descripcion_html ?? "");
+  const [colorPrimario, setColorPrimario] = useState(initial?.color_principal ?? initial?.color_primario ?? "#f97316");
+  const [bannerText, setBannerText] = useState(initial?.banner_texto ?? initial?.banner_text ?? "");
+  const [descripcionLarga, setDescripcionLarga] = useState(initial?.descripcion_larga ?? initial?.descripcion_html ?? "");
   const [envio, setEnvio] = useState<EnvioMetodos>(
     (initial?.envio_metodos as EnvioMetodos) ?? defaultEnvio,
   );
@@ -61,7 +61,7 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
           nombre: nombre.trim(),
           slug: slugFinal,
           descripcion: descripcion.trim() || null,
-          descripcion_html: descripcionHtml.trim() || null,
+          descripcion_larga: descripcionLarga.trim() || null,
           whatsapp: whatsapp.trim() || null,
           instagram: instagram.trim() || null,
           facebook: facebook.trim() || null,
@@ -69,8 +69,8 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
           horarios: horarios.trim() || null,
           mi_historia: miHistoria.trim() || null,
           historia_foto_url: historiaFoto.trim() || null,
-          color_primario: colorPrimario,
-          banner_text: bannerText.trim() || null,
+          color_principal: colorPrimario,
+          banner_texto: bannerText.trim() || null,
           direccion: direccion.trim() || null,
           logo_url: logoUrl.trim() || null,
           banner_url: bannerUrl.trim() || null,
@@ -129,13 +129,13 @@ export function MiTiendaSupabaseForm({ initial }: Props) {
           />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-sm font-medium text-zinc-700">Texto con formato básico (HTML permitido)</span>
+          <span className="text-sm font-medium text-zinc-700">Descripción larga de la tienda</span>
           <textarea
-            value={descripcionHtml}
-            onChange={(e) => setDescripcionHtml(e.target.value)}
+            value={descripcionLarga}
+            onChange={(e) => setDescripcionLarga(e.target.value)}
             rows={4}
             className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-sm"
-            placeholder="<p><b>Negrita</b>, listas...</p>"
+            placeholder="Contá la historia de tu marca, cómo vendés y qué te diferencia."
           />
         </label>
         <label>

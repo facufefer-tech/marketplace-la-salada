@@ -59,7 +59,7 @@ function parsePrecioOverride(x: unknown): number | null {
 }
 
 async function syncVariants(
-  supabase: ReturnType<typeof createSupabaseRouteClient>,
+  supabase: ReturnType<typeof createSupabaseRouteClient> | ReturnType<typeof createSupabaseAdminClient>,
   productoId: string,
   variants: unknown,
 ) {
@@ -84,17 +84,31 @@ async function syncVariants(
 
 function baseProductFromBody(body: Record<string, unknown>) {
   const fotos = (Array.isArray(body.fotos) ? (body.fotos as string[]) : []).filter(Boolean).slice(0, 8);
+  const tallas = Array.isArray(body.tallas)
+    ? (body.tallas as string[]).map((x) => x.trim()).filter(Boolean)
+    : typeof body.tallas === "string"
+      ? String(body.tallas).split(/[,;/]/).map((x) => x.trim()).filter(Boolean)
+      : [];
+  const colores = Array.isArray(body.colores)
+    ? (body.colores as string[]).map((x) => x.trim()).filter(Boolean)
+    : typeof body.colores === "string"
+      ? String(body.colores).split(/[,;/]/).map((x) => x.trim()).filter(Boolean)
+      : [];
   const idx = body.foto_principal_index != null ? Math.min(7, Math.max(0, Number(body.foto_principal_index))) : 0;
   return {
     nombre: String(body.nombre ?? ""),
     descripcion: (body.descripcion as string) ?? null,
     precio: Number(body.precio ?? 0),
     precio_lista: body.precio_lista != null ? Number(body.precio_lista) : null,
+    precio_mayorista: body.precio_mayorista != null ? Number(body.precio_mayorista) : null,
+    precio_promocional: body.precio_promocional != null ? Number(body.precio_promocional) : null,
     marca: (body.marca as string) ?? null,
     sku: body.sku != null ? String(body.sku) : null,
     categoria: (body.categoria as string) ?? null,
     talle: (body.talle as string) ?? null,
     color: (body.color as string) ?? null,
+    tallas: tallas.length ? tallas : null,
+    colores: colores.length ? colores : null,
     stock: Number(body.stock ?? 0),
     peso_gramos: body.peso_gramos != null ? Number(body.peso_gramos) : null,
     material: body.material != null ? String(body.material) : null,
@@ -158,11 +172,13 @@ async function updateProductoCompat(
 
 export async function GET() {
   const supabase = createSupabaseRouteClient();
+  const admin = process.env.SUPABASE_SERVICE_ROLE_KEY ? createSupabaseAdminClient() : null;
+  const db = admin ?? supabase;
   const { user, tiendaId } = await getMyTiendaId(supabase);
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   if (!tiendaId) return NextResponse.json({ data: [] });
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("productos")
     .select("*")
     .eq("tienda_id", tiendaId)
@@ -174,6 +190,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const supabase = createSupabaseRouteClient();
+  const admin = process.env.SUPABASE_SERVICE_ROLE_KEY ? createSupabaseAdminClient() : null;
+  const db = admin ?? supabase;
   const { user, tiendaId } = await getMyTiendaId(supabase);
 
   let body: Record<string, unknown>;
@@ -191,17 +209,17 @@ export async function POST(req: NextRequest) {
   const variants = body.variants;
 
   if (user && tiendaId) {
-    const { data, error } = await insertProductoCompat(supabase, tiendaId, insert);
+    const { data, error } = await insertProductoCompat(db, tiendaId, insert);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     if (data?.id) {
       try {
-        await syncVariants(supabase, data.id, variants);
+        await syncVariants(db as ReturnType<typeof createSupabaseRouteClient>, data.id, variants);
       } catch (e) {
         const m = e instanceof Error ? e.message : "Error variantes";
         return NextResponse.json({ error: m, data }, { status: 500 });
       }
     }
-    const { data: fresh } = await supabase.from("productos").select("*").eq("id", data.id).single();
+    const { data: fresh } = await db.from("productos").select("*").eq("id", data.id).single();
     return NextResponse.json({ data: fresh ?? data });
   }
 
@@ -217,14 +235,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: m }, { status: 500 });
   }
 
-  const admin = createSupabaseAdminClient();
-  const { data, error } = await insertProductoCompat(admin, demoTiendaId, insert);
+  const adminForDemo = createSupabaseAdminClient();
+  const { data, error } = await insertProductoCompat(adminForDemo, demoTiendaId, insert);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data, demo: true });
 }
 
 export async function PUT(req: NextRequest) {
   const supabase = createSupabaseRouteClient();
+  const admin = process.env.SUPABASE_SERVICE_ROLE_KEY ? createSupabaseAdminClient() : null;
+  const db = admin ?? supabase;
   const { user, tiendaId } = await getMyTiendaId(supabase);
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   if (!tiendaId) return NextResponse.json({ error: "Sin tienda" }, { status: 400 });
@@ -239,7 +259,7 @@ export async function PUT(req: NextRequest) {
   const id = body.id;
   if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 });
 
-  const { data: row } = await supabase.from("productos").select("id").eq("id", id).eq("tienda_id", tiendaId).maybeSingle();
+  const { data: row } = await db.from("productos").select("id").eq("id", id).eq("tienda_id", tiendaId).maybeSingle();
   if (!row) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
   const b = baseProductFromBody(body);
@@ -248,11 +268,15 @@ export async function PUT(req: NextRequest) {
     descripcion: b.descripcion,
     precio: b.precio,
     precio_lista: b.precio_lista,
+    precio_mayorista: b.precio_mayorista,
+    precio_promocional: b.precio_promocional,
     marca: b.marca,
     sku: b.sku,
     categoria: b.categoria,
     talle: b.talle,
     color: b.color,
+    tallas: b.tallas,
+    colores: b.colores,
     stock: b.stock,
     peso_gramos: b.peso_gramos,
     material: b.material,
@@ -285,22 +309,24 @@ export async function PUT(req: NextRequest) {
     }).filter(([, v]) => v !== undefined),
   ) as Record<string, unknown>;
 
-  const { data, error } = await updateProductoCompat(supabase, id, cleaned, basic);
+  const { data, error } = await updateProductoCompat(db as ReturnType<typeof createSupabaseRouteClient>, id, cleaned, basic);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (Object.prototype.hasOwnProperty.call(body, "variants")) {
     try {
-      await syncVariants(supabase, id, body.variants);
+      await syncVariants(db as ReturnType<typeof createSupabaseRouteClient>, id, body.variants);
     } catch (e) {
       const m = e instanceof Error ? e.message : "Error variantes";
       return NextResponse.json({ error: m, data }, { status: 500 });
     }
   }
-  const { data: fresh } = await supabase.from("productos").select("*").eq("id", id).single();
+  const { data: fresh } = await db.from("productos").select("*").eq("id", id).single();
   return NextResponse.json({ data: fresh ?? data });
 }
 
 export async function DELETE(req: NextRequest) {
   const supabase = createSupabaseRouteClient();
+  const admin = process.env.SUPABASE_SERVICE_ROLE_KEY ? createSupabaseAdminClient() : null;
+  const db = admin ?? supabase;
   const { user, tiendaId } = await getMyTiendaId(supabase);
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   if (!tiendaId) return NextResponse.json({ error: "Sin tienda" }, { status: 400 });
@@ -308,7 +334,7 @@ export async function DELETE(req: NextRequest) {
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id query requerido" }, { status: 400 });
 
-  const { error } = await supabase.from("productos").delete().eq("id", id).eq("tienda_id", tiendaId);
+  const { error } = await db.from("productos").delete().eq("id", id).eq("tienda_id", tiendaId);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

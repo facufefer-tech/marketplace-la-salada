@@ -124,6 +124,10 @@ export default async function ProductoPage({ params }: Props) {
   }
 
   const row = producto as Producto & { tienda_id: string; destacado?: boolean };
+  const tallasRow = (producto as { tallas?: string[] | null }).tallas ?? [];
+  const coloresRow = (producto as { colores?: string[] | null }).colores ?? [];
+  const precioMayorista = (producto as { precio_mayorista?: number | null }).precio_mayorista ?? null;
+  const skuRow = (producto as { sku?: string | null }).sku ?? row.sku ?? null;
   const t = tiendaRow;
   const p: Producto = {
     id: String(row.id),
@@ -186,6 +190,38 @@ export default async function ProductoPage({ params }: Props) {
           <p className="text-sm text-zinc-400">Tienda en La Salada</p>
         </div>
       )}
+      <section className="mb-6 grid gap-3 rounded-2xl border border-[#E0E0E0] bg-white p-4 md:grid-cols-3">
+        <div>
+          <p className="text-xs text-zinc-500">Precio minorista</p>
+          <p className="text-xl font-black text-[#1A1A1A]">${Number(p.precio).toLocaleString("es-AR")}</p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Precio mayorista</p>
+          <p className="text-xl font-black text-[#1A1A1A]">
+            {precioMayorista != null ? `$${Number(precioMayorista).toLocaleString("es-AR")}` : "No informado"}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">SKU</p>
+          <p className="text-base font-semibold text-[#1A1A1A]">{skuRow ?? "No informado"}</p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Tallas</p>
+          <p className="text-sm text-zinc-700">
+            {tallasRow.length ? tallasRow.join(", ") : (p.talle ?? "No informado")}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Colores</p>
+          <p className="text-sm text-zinc-700">
+            {coloresRow.length ? coloresRow.join(", ") : (p.color ?? "No informado")}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Stock disponible</p>
+          <p className="text-sm font-semibold text-zinc-800">{Math.max(0, p.stock)} unidades</p>
+        </div>
+      </section>
 
       <ProductoDetalleClient
         producto={p}

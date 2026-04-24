@@ -66,7 +66,9 @@ export default async function TiendaPage({ params, searchParams }: Props) {
     : [];
   const list = filtered.length
     ? filtered
-    : demoProducts.filter((p) => p.tiendas?.slug === params.tienda);
+    : params.tienda === "moda-la-salada-demo"
+      ? demoProducts
+      : demoProducts.filter((p) => p.tiendas?.slug === params.tienda);
   const categorias = Array.from(new Set(list.map((p) => p.categoria).filter(Boolean))) as string[];
   const fCat = searchParams?.categoria ?? "Todas";
   const fq = (searchParams?.q ?? "").toLowerCase();

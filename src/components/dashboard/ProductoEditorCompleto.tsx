@@ -55,6 +55,14 @@ export function ProductoEditorCompleto({ producto, initialVariants }: Props) {
     producto.precio_lista != null ? String(producto.precio_lista) : String(producto.precio),
   );
   const [precioFinal, setPrecioFinal] = useState(String(producto.precio));
+  const [precioMayorista, setPrecioMayorista] = useState(
+    producto.precio_mayorista != null ? String(producto.precio_mayorista) : "",
+  );
+  const [precioPromocional, setPrecioPromocional] = useState(
+    producto.precio_promocional != null ? String(producto.precio_promocional) : "",
+  );
+  const [tallasTxt, setTallasTxt] = useState((producto.tallas ?? []).join(", "));
+  const [coloresTxt, setColoresTxt] = useState((producto.colores ?? []).join(", "));
   const [descripcion, setDescripcion] = useState(producto.descripcion ?? "");
   const [fotos, setFotos] = useState<string[]>(producto.fotos?.length ? producto.fotos.slice(0, 8) : []);
   const [fotoPrincipal, setFotoPrincipal] = useState(producto.foto_principal_index ?? 0);
@@ -114,7 +122,17 @@ export function ProductoEditorCompleto({ producto, initialVariants }: Props) {
           seo_descripcion: seoDesc.trim() || null,
           precio: pf,
           precio_lista: pl > pf ? pl : null,
+          precio_mayorista: precioMayorista ? Number(precioMayorista) : null,
+          precio_promocional: precioPromocional ? Number(precioPromocional) : null,
           descripcion: descripcion.trim() || null,
+          tallas: tallasTxt
+            .split(/[,;/]/)
+            .map((s) => s.trim())
+            .filter(Boolean),
+          colores: coloresTxt
+            .split(/[,;/]/)
+            .map((s) => s.trim())
+            .filter(Boolean),
           fotos: fotos.filter(Boolean).slice(0, 8),
           foto_principal_index: fotoPrincipal,
           estado_publicacion: estadoPub,
@@ -159,6 +177,26 @@ export function ProductoEditorCompleto({ producto, initialVariants }: Props) {
           <label>
             <span className="text-sm font-medium text-zinc-700">Marca</span>
             <input value={marca} onChange={(e) => setMarca(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          </label>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label>
+            <span className="text-sm">Precio mayorista</span>
+            <input type="number" value={precioMayorista} onChange={(e) => setPrecioMayorista(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          </label>
+          <label>
+            <span className="text-sm">Precio promocional</span>
+            <input type="number" value={precioPromocional} onChange={(e) => setPrecioPromocional(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          </label>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label>
+            <span className="text-sm">Tallas (coma separada)</span>
+            <input value={tallasTxt} onChange={(e) => setTallasTxt(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          </label>
+          <label>
+            <span className="text-sm">Colores (coma separada)</span>
+            <input value={coloresTxt} onChange={(e) => setColoresTxt(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
           </label>
         </div>
         <label>
