@@ -29,11 +29,14 @@ export function HomeCatalog() {
     void (async () => {
       try {
         const res = await fetch("/api/productos?page=0", { cache: "no-store" });
-        const j = (await res.json()) as { data?: Array<typeof demoProducts[number] & { tienda_slug?: string; tienda_nombre?: string }> };
+        const raw = (await res.json()) as
+          | { data?: Array<typeof demoProducts[number] & { tienda_slug?: string; tienda_nombre?: string }> }
+          | Array<typeof demoProducts[number] & { tienda_slug?: string; tienda_nombre?: string }>;
+        const apiRows = Array.isArray(raw) ? raw : (raw.data ?? []);
         if (!active) return;
-        if (res.ok && Array.isArray(j.data) && j.data.length > 0) {
+        if (res.ok && Array.isArray(apiRows) && apiRows.length > 0) {
           setSourceProducts(
-            j.data.map((p) => {
+            apiRows.map((p) => {
               const tiendaSlug =
                 p.tienda_slug ??
                 p.tiendas?.slug ??
