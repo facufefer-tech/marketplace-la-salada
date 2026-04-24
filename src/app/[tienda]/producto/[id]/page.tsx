@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { ProductoDetalleClient } from "@/components/product/ProductoDetalleClient";
-import { getDemoStoreBySlug, getDemoProductById } from "@/lib/demo-data";
+import { demoProducts, getDemoStoreBySlug, getDemoProductById } from "@/lib/demo-data";
 import { getSiteUrl } from "@/lib/site-url";
 import type { EnvioMetodos, Producto, ResenaRow, Tienda } from "@/lib/types";
 
@@ -44,6 +44,8 @@ export default async function ProductoPage({ params }: Props) {
   let tiendaRow: TiendaRow | null = null;
   let enviosConfig: { metodo: string; precio: number; activo: boolean; tiempo_entrega: string | null; descripcion: string | null }[] = [];
   let resenasList: ResenaRow[] = [];
+  let mismaTienda: Producto[] = [];
+  let similares: Producto[] = [];
 
   if (url && key) {
     const supabase = createClient(url, key);
@@ -59,12 +61,19 @@ export default async function ProductoPage({ params }: Props) {
         producto = row;
         tiendaRow = t;
         const tid = (row as { tienda_id: string }).tienda_id;
-        const [{ data: ev }, { data: rs }] = await Promise.all([
+        const category = (row as { categoria?: string | null }).categoria ?? null;
+        const [{ data: ev }, { data: rs }, { data: rel }, { data: sim }] = await Promise.all([
           supabase.from("envios_config").select("*").eq("tienda_id", tid).eq("activo", true),
           supabase.from("resenas").select("*").eq("producto_id", params.id).eq("aprobada", true),
+          supabase.from("productos").select("*").eq("tienda_id", tid).eq("activo", true).neq("id", params.id).limit(4),
+          category
+            ? supabase.from("productos").select("*").eq("categoria", category).eq("activo", true).neq("id", params.id).limit(4)
+            : Promise.resolve({ data: [] as unknown[] }),
         ]);
         enviosConfig = (ev ?? []) as typeof enviosConfig;
         resenasList = (rs ?? []) as ResenaRow[];
+        mismaTienda = (rel ?? []) as Producto[];
+        similares = (sim ?? []) as Producto[];
       }
     }
   }
@@ -89,6 +98,8 @@ export default async function ProductoPage({ params }: Props) {
       { metodo: "retiro", precio: 0, activo: true, tiempo_entrega: "Coordinar", descripcion: "Puesto" },
       { metodo: "correo_argentino", precio: 4500, activo: true, tiempo_entrega: "3-7 d", descripcion: "Demo" },
     ];
+    mismaTienda = demoProducts.filter((x) => x.tiendas?.slug === params.tienda && x.id !== demoP.id).slice(0, 4);
+    similares = demoProducts.filter((x) => x.categoria === demoP.categoria && x.id !== demoP.id).slice(0, 4);
   }
 
   if (!producto || !tiendaRow) notFound();
@@ -157,7 +168,14 @@ export default async function ProductoPage({ params }: Props) {
         </div>
       )}
 
-      <ProductoDetalleClient producto={p} tienda={t} enviosConfig={enviosConfig} resenas={resenasList} />
+      <ProductoDetalleClient
+        producto={p}
+        tienda={t}
+        enviosConfig={enviosConfig}
+        resenas={resenasList}
+        relacionadosMismaTienda={mismaTienda}
+        similares={similares}
+      />
     </main>
   );
 }

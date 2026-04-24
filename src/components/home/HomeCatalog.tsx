@@ -19,6 +19,8 @@ export function HomeCatalog() {
   const [maxPrecio, setMaxPrecio] = useState(MAX_P);
   const [talle, setTalle] = useState("Todos");
   const [color, setColor] = useState("Todos");
+  const [visible, setVisible] = useState(12);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const cat = searchParams.get("categoria");
@@ -27,6 +29,12 @@ export function HomeCatalog() {
     if (query) setQ(query);
     setSoloOfertas(searchParams.get("descuento") === "1");
   }, [searchParams]);
+
+  useEffect(() => {
+    setLoading(true);
+    const tm = window.setTimeout(() => setLoading(false), 550);
+    return () => window.clearTimeout(tm);
+  }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color]);
 
   const coloresU = useMemo(() => {
     const s = new Set<string>();
@@ -62,6 +70,7 @@ export function HomeCatalog() {
       return true;
     });
   }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color]);
+  const visibleItems = filtered.slice(0, visible);
 
   return (
     <section className="container-shell space-y-6">
@@ -160,11 +169,39 @@ export function HomeCatalog() {
           <p className="text-sm text-zinc-500">{filtered.length} resultados</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {filtered.map((p) => (
-          <ProductCard key={p.id} producto={p} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+              <div className="skeleton aspect-[4/5]" />
+              <div className="space-y-2 p-3">
+                <div className="skeleton h-4 w-3/4 rounded" />
+                <div className="skeleton h-4 w-1/2 rounded" />
+                <div className="skeleton h-9 rounded-xl" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {visibleItems.map((p, i) => (
+            <div key={p.id} className="fade-in-up" style={{ animationDelay: `${Math.min(i * 40, 300)}ms` }}>
+              <ProductCard producto={p} />
+            </div>
+          ))}
+        </div>
+      )}
+      {!loading && visibleItems.length < filtered.length ? (
+        <div className="pt-2 text-center">
+          <button
+            type="button"
+            onClick={() => setVisible((v) => v + 8)}
+            className="rounded-xl border border-zinc-700 px-5 py-2 text-sm font-semibold text-zinc-100 hover:border-orange-500 hover:text-orange-400"
+          >
+            Cargar más productos
+          </button>
+        </div>
+      ) : null}
       {!filtered.length && <p className="mt-4 text-center text-sm text-zinc-400">No encontramos productos con esos filtros.</p>}
     </section>
   );

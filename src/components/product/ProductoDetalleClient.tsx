@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { EnvioMetodos, Producto, ResenaRow, Tienda } from "@/lib/types";
+import { showToast } from "@/lib/toast";
 import { waMeHref } from "@/lib/whatsapp";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -40,13 +41,19 @@ export function ProductoDetalleClient({
   enviosConfig = [],
   resenas: resenasIn = [],
   productoId = initial.id,
+  relacionadosMismaTienda = [],
+  similares = [],
 }: {
   producto: Producto;
   tienda: TiendaIn & Pick<Tienda, "direccion" | "whatsapp" | "instagram" | "envio_metodos">;
   enviosConfig?: { metodo: string; precio: number; activo: boolean; tiempo_entrega: string | null; descripcion: string | null }[];
   resenas?: ResenaRow[];
   productoId?: string;
+  relacionadosMismaTienda?: Producto[];
+  similares?: Producto[];
 }) {
+  const [tab, setTab] = useState<"desc" | "specs" | "resenas">("desc");
+  const [showGuia, setShowGuia] = useState(false);
   const router = useRouter();
   const add = useCartStore((s) => s.add);
   const fotos = initial.fotos?.length ? initial.fotos : ["https://picsum.photos/800/800?random=4"];
@@ -80,6 +87,7 @@ export function ProductoDetalleClient({
 
   function onAdd() {
     add(initial, { cantidad: qty, talle, color });
+    showToast("Producto agregado al carrito", "success");
   }
   function onBuy() {
     onAdd();
@@ -89,12 +97,12 @@ export function ProductoDetalleClient({
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <div className="space-y-3">
-        <div className="relative aspect-square overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+        <div className="group relative aspect-square overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
           <Image
             src={fotos[idx]!}
             alt={initial.nombre}
             fill
-            className="object-cover"
+            className="object-cover transition duration-300 group-hover:scale-110"
             priority
             sizes="(max-width:768px) 100vw, 50vw"
           />
@@ -138,7 +146,12 @@ export function ProductoDetalleClient({
         )}
 
         <div>
-          <p className="text-sm font-bold text-zinc-300">Talle</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-zinc-300">Talle</p>
+            <button type="button" className="text-xs text-orange-400 hover:underline" onClick={() => setShowGuia(true)}>
+              Guía de talles
+            </button>
+          </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {talles.map((x) => (
               <button
@@ -164,12 +177,13 @@ export function ProductoDetalleClient({
                 key={x}
                 type="button"
                 onClick={() => setColor(x)}
-                className={`rounded-xl border px-3 py-2 text-sm font-bold transition ${
+                className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold transition ${
                   color === x
                     ? "border-orange-500 bg-orange-500/10 text-white"
                     : "border-zinc-700 text-zinc-300 hover:border-zinc-500"
                 }`}
               >
+                <span className="h-3 w-3 rounded-full border border-zinc-500 bg-zinc-400" />
                 {x}
               </button>
             ))}
@@ -186,14 +200,14 @@ export function ProductoDetalleClient({
             className="w-20 rounded-xl border border-zinc-700 bg-black px-3 py-2 text-white"
           />
         </div>
-        <p className="text-sm text-zinc-500">Stock disponible: {initial.stock}</p>
+        <p className="text-sm font-semibold text-amber-400">¡Solo {Math.max(0, initial.stock)} disponibles!</p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
             onClick={onAdd}
             disabled={initial.stock <= 0}
-            className="flex-1 rounded-2xl bg-zinc-800 py-3.5 text-sm font-black text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex-1 rounded-2xl bg-orange-500 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Agregar al carrito
           </button>
@@ -201,10 +215,38 @@ export function ProductoDetalleClient({
             type="button"
             onClick={onBuy}
             disabled={initial.stock <= 0}
-            className="flex-1 rounded-2xl bg-orange-500 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex-1 rounded-2xl border border-zinc-600 bg-zinc-900 py-3.5 text-sm font-black text-white transition hover:border-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Comprar ahora
           </button>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-[#111] p-4">
+          <div className="mb-3 flex gap-2 border-b border-zinc-800 pb-3 text-xs font-bold uppercase tracking-wide">
+            <button type="button" onClick={() => setTab("desc")} className={tab === "desc" ? "text-orange-400" : "text-zinc-500"}>
+              Descripción
+            </button>
+            <button type="button" onClick={() => setTab("specs")} className={tab === "specs" ? "text-orange-400" : "text-zinc-500"}>
+              Especificaciones
+            </button>
+            <button type="button" onClick={() => setTab("resenas")} className={tab === "resenas" ? "text-orange-400" : "text-zinc-500"}>
+              Reseñas
+            </button>
+          </div>
+          {tab === "desc" ? (
+            <p className="text-sm text-zinc-300">{initial.descripcion ?? "Sin descripción."}</p>
+          ) : null}
+          {tab === "specs" ? (
+            <ul className="space-y-1 text-sm text-zinc-300">
+              <li>Marca: {initial.marca ?? "No informada"}</li>
+              <li>Categoría: {initial.categoria ?? "General"}</li>
+              <li>Material: {initial.material ?? "No informado"}</li>
+              <li>SKU: {initial.sku ?? "No informado"}</li>
+            </ul>
+          ) : null}
+          {tab === "resenas" ? (
+            <p className="text-sm text-zinc-400">Promedio {resenasIn.length ? (resenasIn.reduce((a, r) => a + r.estrellas, 0) / resenasIn.length).toFixed(1) : "0"} ★</p>
+          ) : null}
         </div>
 
         <div className="rounded-2xl border border-zinc-800 bg-[#111] p-4">
@@ -328,6 +370,53 @@ export function ProductoDetalleClient({
           )}
         </div>
       </div>
+      {showGuia && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-zinc-700 bg-zinc-900 p-4">
+            <p className="text-lg font-bold text-white">Guía de talles</p>
+            <ul className="mt-3 space-y-1 text-sm text-zinc-300">
+              <li>XS: contorno pecho 80-84 cm</li>
+              <li>S: contorno pecho 85-89 cm</li>
+              <li>M: contorno pecho 90-96 cm</li>
+              <li>L: contorno pecho 97-103 cm</li>
+              <li>XL: contorno pecho 104-112 cm</li>
+            </ul>
+            <button type="button" onClick={() => setShowGuia(false)} className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm font-bold text-black">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+      {(relacionadosMismaTienda?.length || similares?.length) ? (
+        <div className="md:col-span-2 space-y-7 border-t border-zinc-800 pt-5">
+          {relacionadosMismaTienda?.length ? (
+            <section>
+              <h3 className="text-xl font-black text-white">De la misma tienda</h3>
+              <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+                {relacionadosMismaTienda.map((p) => (
+                  <Link key={p.id} href={`/${p.tiendas?.slug ?? t.slug}/producto/${p.id}`} className="rounded-xl border border-zinc-800 p-3 hover:border-orange-500">
+                    <p className="line-clamp-1 text-sm font-semibold text-white">{p.nombre}</p>
+                    <p className="text-xs text-zinc-500">${Number(p.precio).toLocaleString("es-AR")}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+          {similares?.length ? (
+            <section>
+              <h3 className="text-xl font-black text-white">También te puede gustar</h3>
+              <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+                {similares.map((p) => (
+                  <Link key={p.id} href={`/${p.tiendas?.slug ?? t.slug}/producto/${p.id}`} className="rounded-xl border border-zinc-800 p-3 hover:border-orange-500">
+                    <p className="line-clamp-1 text-sm font-semibold text-white">{p.nombre}</p>
+                    <p className="text-xs text-zinc-500">${Number(p.precio).toLocaleString("es-AR")}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

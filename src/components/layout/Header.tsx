@@ -12,6 +12,7 @@ export function Header() {
   const searchParams = useSearchParams();
   const [q, setQ] = useState(searchParams.get("q") ?? "");
   const [cartOpen, setCartOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const count = useCartStore((s) => s.count());
 
   useEffect(() => {
@@ -39,10 +40,17 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-[#111111] text-white">
+      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-[#101010]/95 text-white backdrop-blur">
         <div className="container-shell flex flex-wrap items-center gap-3 py-3">
-          <Link href="/" className="text-2xl font-extrabold tracking-tight text-white">
-            La <span className="text-accent">Salada</span>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-bold text-zinc-300 md:hidden"
+          >
+            ☰
+          </button>
+          <Link href="/" className="text-2xl font-black tracking-tight text-white">
+            La <span className="text-orange-500">Salada</span>
           </Link>
 
           {showSearch && (
@@ -55,14 +63,14 @@ export function Header() {
               />
               <button
                 type="submit"
-                className="rounded-r-xl bg-accent px-5 py-2.5 text-sm font-bold text-white hover:bg-orange-600"
+                className="rounded-r-xl bg-orange-500 px-5 py-2.5 text-sm font-bold text-black hover:bg-orange-400"
               >
                 Buscar
               </button>
             </form>
           )}
 
-          <nav className="ml-auto flex items-center gap-2 sm:gap-3">
+          <nav className="ml-auto hidden items-center gap-2 sm:gap-3 md:flex">
             <Link
               href="/sobre-nosotros"
               className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
@@ -86,12 +94,6 @@ export function Header() {
               className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
             >
               Envíos
-            </Link>
-            <Link
-              href="/carrito"
-              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
-            >
-              Carrito
             </Link>
             <Link
               href="/auth"
@@ -140,6 +142,24 @@ export function Header() {
                 </Link>
               );
             })}
+          </div>
+        )}
+        {menuOpen && (
+          <div className="container-shell border-t border-zinc-800 py-2 md:hidden">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <Link href="/sobre-nosotros" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+                Sobre nosotros
+              </Link>
+              <Link href="/feriantes" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+                Feriantes
+              </Link>
+              <Link href="/?descuento=1" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+                Ofertas
+              </Link>
+              <Link href="/auth" className="rounded-lg bg-zinc-900 px-3 py-2" onClick={() => setMenuOpen(false)}>
+                Mi cuenta
+              </Link>
+            </div>
           </div>
         )}
       </header>

@@ -64,6 +64,23 @@ export function Footer() {
           </ul>
         </div>
       </div>
+      <div className="container-shell grid gap-4 border-t border-zinc-800 pb-10 pt-6 md:grid-cols-2">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+          <p className="mb-2 text-sm font-bold text-white">Mapa de La Salada</p>
+          <iframe
+            title="Mapa La Salada"
+            src="https://www.google.com/maps?q=La+Salada+Buenos+Aires&output=embed"
+            className="h-44 w-full rounded-xl border border-zinc-700"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 text-sm text-zinc-400">
+          <p className="font-bold text-white">Centro de ayuda</p>
+          <p className="mt-2">Atención por WhatsApp de lunes a sábado de 8:00 a 19:00.</p>
+          <p className="mt-1">Soporte para compradores y feriantes en una sola plataforma.</p>
+          <p className="mt-4 text-xs text-zinc-500">© {new Date().getFullYear()} La Salada Marketplace.</p>
+        </div>
+      </div>
     </footer>
   );
 }

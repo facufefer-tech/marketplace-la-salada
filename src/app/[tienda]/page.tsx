@@ -7,7 +7,7 @@ import { demoProducts, demoStores } from "@/lib/demo-data";
 import { getSiteUrl } from "@/lib/site-url";
 import type { Producto } from "@/lib/types";
 
-type Props = { params: { tienda: string } };
+type Props = { params: { tienda: string }; searchParams?: { categoria?: string; q?: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const u = getSiteUrl();
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function TiendaPage({ params }: Props) {
+export default async function TiendaPage({ params, searchParams }: Props) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) notFound();
@@ -48,6 +48,14 @@ export default async function TiendaPage({ params }: Props) {
   const list = filtered.length
     ? filtered
     : demoProducts.filter((p) => p.tiendas?.slug === params.tienda);
+  const categorias = Array.from(new Set(list.map((p) => p.categoria).filter(Boolean))) as string[];
+  const fCat = searchParams?.categoria ?? "Todas";
+  const fq = (searchParams?.q ?? "").toLowerCase();
+  const listFiltered = list.filter((p) => {
+    if (fCat !== "Todas" && p.categoria !== fCat) return false;
+    if (fq && !`${p.nombre} ${p.descripcion ?? ""}`.toLowerCase().includes(fq)) return false;
+    return true;
+  });
   const viewStore =
     tienda ??
     (fallbackStore
@@ -96,9 +104,40 @@ export default async function TiendaPage({ params }: Props) {
         </div>
       </div>
 
-      <h2 className="mb-4 text-2xl font-extrabold text-zinc-900">Productos de la tienda</h2>
+      <section className="mb-5 grid gap-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-200 md:grid-cols-4">
+        <div>
+          <p className="text-xs text-zinc-500">Productos</p>
+          <p className="text-xl font-black">{list.length}</p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Reseñas</p>
+          <p className="text-xl font-black">+240</p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Rating</p>
+          <p className="text-xl font-black text-amber-400">★ 4.8</p>
+        </div>
+        <div>
+          <p className="text-xs text-zinc-500">Ventas del mes</p>
+          <p className="text-xl font-black">+1.200</p>
+        </div>
+      </section>
+      <section className="mb-5 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+        <p className="text-sm font-bold text-white">Filtros de tienda</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href={`/${params.tienda}`} className={`rounded-full px-3 py-1 text-xs ${fCat === "Todas" ? "bg-orange-500 text-black" : "bg-zinc-800 text-zinc-200"}`}>
+            Todas
+          </Link>
+          {categorias.map((c) => (
+            <Link key={c} href={`/${params.tienda}?categoria=${encodeURIComponent(c)}`} className={`rounded-full px-3 py-1 text-xs ${fCat === c ? "bg-orange-500 text-black" : "bg-zinc-800 text-zinc-200"}`}>
+              {c}
+            </Link>
+          ))}
+        </div>
+      </section>
+      <h2 className="mb-4 text-2xl font-extrabold text-white">Productos de la tienda</h2>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {list.map((p) => {
+        {listFiltered.map((p) => {
           const img = p.fotos?.[0];
           const ui = p as Producto & { precioOriginal?: number; descuentoPct?: number };
           const maybeOriginal = typeof ui.precioOriginal === "number" ? ui.precioOriginal : null;
@@ -107,9 +146,9 @@ export default async function TiendaPage({ params }: Props) {
             <Link
               key={p.id}
               href={`/${params.tienda}/producto/${p.id}`}
-              className="group overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-lg"
+              className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-500/70"
             >
-              <div className="relative aspect-[4/5] bg-zinc-100">
+              <div className="relative aspect-[4/5] bg-zinc-900">
                 {img ? (
                   <Image src={img} alt={p.nombre} fill className="object-cover" sizes="(max-width:768px) 100vw, 33vw" />
                 ) : (
@@ -122,13 +161,13 @@ export default async function TiendaPage({ params }: Props) {
                 )}
               </div>
               <div className="p-3">
-                <p className="line-clamp-2 text-sm font-semibold text-zinc-900 group-hover:text-orange-500">{p.nombre}</p>
+                <p className="line-clamp-2 text-sm font-semibold text-zinc-100 group-hover:text-orange-500">{p.nombre}</p>
                 {maybeOriginal && (
-                  <p className="mt-1 text-xs text-zinc-400 line-through">
+                  <p className="mt-1 text-xs text-zinc-500 line-through">
                     ${Number(maybeOriginal).toLocaleString("es-AR")}
                   </p>
                 )}
-                <p className="mt-1 text-base font-extrabold text-zinc-900">${Number(p.precio).toLocaleString("es-AR")}</p>
+                <p className="mt-1 text-base font-extrabold text-zinc-100">${Number(p.precio).toLocaleString("es-AR")}</p>
                 {maybeDiscount && (
                   <p className="text-xs font-bold text-red-500">-{maybeDiscount}% OFF</p>
                 )}
@@ -137,7 +176,27 @@ export default async function TiendaPage({ params }: Props) {
           );
         })}
       </div>
-      {!list.length && <p className="text-sm text-zinc-500">Esta tienda aún no publicó productos.</p>}
+      {!listFiltered.length && <p className="text-sm text-zinc-500">Esta tienda aún no publicó productos.</p>}
+      <section className="mt-8 grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-5 md:grid-cols-2">
+        <div>
+          <p className="text-xl font-black text-white">Sobre esta tienda</p>
+          <p className="mt-2 text-sm text-zinc-400">{viewStore.descripcion ?? "Tienda oficial de La Salada con atención personalizada."}</p>
+        </div>
+        <div className="text-sm text-zinc-300">
+          <p className="font-bold text-white">Métodos de envío</p>
+          <p className="mt-1">Retiro en puesto, envío propio, Correo Argentino y OCA.</p>
+          <p className="mt-3 font-bold text-white">Pagos aceptados</p>
+          <p className="mt-1">Mercado Pago, transferencia y efectivo coordinado.</p>
+        </div>
+      </section>
+      <a
+        href="https://wa.me/5491111111111?text=Hola%20quiero%20consultar%20por%20productos%20de%20la%20tienda"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-24 right-4 z-30 rounded-full bg-emerald-500 px-4 py-3 text-sm font-bold text-black shadow-lg hover:bg-emerald-400 md:bottom-6"
+      >
+        WhatsApp
+      </a>
     </main>
   );
 }

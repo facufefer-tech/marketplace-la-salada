@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 import type { Producto } from "@/lib/types";
 import { useCartStore } from "@/store/useCartStore";
 
@@ -103,7 +104,10 @@ export function ProductCard({ producto }: { producto: UIProduct }) {
           </Link>
           <button
             type="button"
-            onClick={() => add(producto)}
+            onClick={() => {
+              add(producto);
+              showToast("Agregado al carrito", "success");
+            }}
             className="w-full rounded-xl bg-orange-500 px-3 py-2 text-sm font-black text-white shadow transition hover:bg-orange-600"
           >
             Agregar al carrito

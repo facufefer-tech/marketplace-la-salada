@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { demoProducts } from "@/lib/demo-data";
 import { useCartStore } from "@/store/useCartStore";
 
 const METODOS: { id: string; label: string }[] = [
@@ -22,6 +23,10 @@ export default function CarritoPage() {
   const [envList, setEnvList] = useState<{ metodo: string; precio: number; activo: boolean; tiempo_entrega: string | null }[]>([]);
   const tiendaId = lines[0]?.producto.tienda_id;
   const sub = total();
+  const sugeridos = useMemo(() => {
+    const ids = new Set(lines.map((l) => l.producto.id));
+    return demoProducts.filter((p) => !ids.has(p.id)).slice(0, 3);
+  }, [lines]);
 
   useEffect(() => {
     if (!tiendaId) {
@@ -209,6 +214,17 @@ export default function CarritoPage() {
               </button>
             </div>
           </div>
+          <section className="rounded-2xl border border-zinc-800 bg-[#111] p-5">
+            <h2 className="text-lg font-black text-white">Podés necesitar</h2>
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {sugeridos.map((p) => (
+                <Link key={p.id} href={`/${p.tiendas?.slug}/producto/${p.id}`} className="rounded-xl border border-zinc-800 p-3 hover:border-orange-500">
+                  <p className="line-clamp-1 text-sm font-semibold text-white">{p.nombre}</p>
+                  <p className="text-xs text-zinc-500">${p.precio.toLocaleString("es-AR")}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
       )}
     </main>
