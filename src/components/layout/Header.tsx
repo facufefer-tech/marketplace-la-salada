@@ -60,6 +60,18 @@ export function Header() {
 
           <nav className="ml-auto flex items-center gap-2 sm:gap-3">
             <Link
+              href="/sobre-nosotros"
+              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            >
+              Sobre nosotros
+            </Link>
+            <Link
+              href="/privacidad"
+              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            >
+              Privacidad
+            </Link>
+            <Link
               href="/feriantes"
               className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
             >
