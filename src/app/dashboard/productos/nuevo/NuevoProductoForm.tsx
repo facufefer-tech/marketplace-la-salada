@@ -11,6 +11,7 @@ const categorias = ["Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios"
 export function NuevoProductoForm() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
+  const [marca, setMarca] = useState("");
   const [categoria, setCategoria] = useState("Remeras");
   const [precioOriginal, setPrecioOriginal] = useState("");
   const [precioDescuento, setPrecioDescuento] = useState("");
@@ -42,13 +43,15 @@ export function NuevoProductoForm() {
       }
 
       const payload = {
-        nombre,
+        nombre: nombre.trim(),
+        marca: marca.trim() || null,
         categoria,
         precio: final,
+        precio_lista: po > 0 ? po : null,
         talle: tallesSel.join(", "),
         color: colores,
         stock: Number(stock || "0"),
-        descripcion: `Precio original: $${po.toLocaleString("es-AR")} | ${descripcion}`,
+        descripcion: descripcion.trim() || null,
         fotos: fotos.slice(0, 4),
         activo: true,
         destacado: false,
@@ -70,6 +73,7 @@ export function NuevoProductoForm() {
           : "Producto publicado correctamente.",
       );
       setNombre("");
+      setMarca("");
       setPrecioOriginal("");
       setPrecioDescuento("");
       setTallesSel([]);
@@ -87,6 +91,7 @@ export function NuevoProductoForm() {
     <form onSubmit={submit} className="space-y-4 rounded-2xl border border-zinc-700 bg-[#111111] p-5">
       <h1 className="text-2xl font-black text-white">Nuevo producto</h1>
       <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre del producto" className="w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
+      <input value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Marca (opcional)" className="w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
       <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-full rounded-xl border border-zinc-700 bg-black px-3 py-2">
         {categorias.map((c) => (
           <option key={c}>{c}</option>

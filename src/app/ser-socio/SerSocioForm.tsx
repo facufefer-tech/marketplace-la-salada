@@ -34,7 +34,9 @@ export function SerSocioForm() {
         setErr(json.error ?? "No se pudo enviar");
         return;
       }
-      setMsg("Solicitud enviada. Tu tienda quedó en estado pendiente para revisión.");
+      setMsg(
+        "¡Solicitud recibida! Próximos pasos: 1) Nuestro equipo revisa los datos. 2) Te contactamos por WhatsApp. 3) Activamos tu puesto (gratis) y te compartimos el acceso. 4) Cargás productos y compartís tu link. Podés adelantar creando cuenta en /auth",
+      );
       setForm({
         nombre_tienda: "",
         dueno: "",

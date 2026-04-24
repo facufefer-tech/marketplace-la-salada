@@ -1,92 +1,171 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ProductCard } from "@/components/home/ProductCard";
-import type { Producto } from "@/lib/types";
+import { useEffect, useMemo, useState } from "react";
+import { ProductCard } from "@/components/storefront/ProductCard";
+import { demoProducts } from "@/lib/demo-data";
 
-type Row = Producto & {
-  tiendas?: { slug: string; nombre: string; logo_url: string | null } | null;
-};
+const CATS = ["Todas", "Remeras", "Pantalones", "Vestidos", "Calzado", "Accesorios", "Abrigos", "Deportivo"];
+const TALLES = ["Todos", "XS", "S", "M", "L", "XL", "XXL"];
+const MAX_P = 150000;
+const MIN_P = 0;
 
 export function HomeCatalog() {
   const searchParams = useSearchParams();
-  const [page, setPage] = useState(0);
-  const [rows, setRows] = useState<Row[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const sentinel = useRef<HTMLDivElement>(null);
+  const [q, setQ] = useState("");
+  const [categoria, setCategoria] = useState("Todas");
+  const [soloOfertas, setSoloOfertas] = useState(false);
+  const [minPrecio, setMinPrecio] = useState(MIN_P);
+  const [maxPrecio, setMaxPrecio] = useState(MAX_P);
+  const [talle, setTalle] = useState("Todos");
+  const [color, setColor] = useState("Todos");
 
-  const queryString = useMemo(() => {
-    const p = new URLSearchParams();
-    searchParams.forEach((v, k) => {
-      if (["q", "categoria", "minPrecio", "maxPrecio", "talle", "color", "tienda"].includes(k)) {
-        p.set(k, v);
-      }
-    });
-    return p.toString();
+  useEffect(() => {
+    const cat = searchParams.get("categoria");
+    if (cat) setCategoria(cat);
+    const query = searchParams.get("q");
+    if (query) setQ(query);
+    setSoloOfertas(searchParams.get("descuento") === "1");
   }, [searchParams]);
 
-  const load = useCallback(
-    async (nextPage: number, append: boolean) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const qs = new URLSearchParams(queryString);
-        qs.set("page", String(nextPage));
-        const res = await fetch(`/api/productos?${qs.toString()}`);
-        const json = await res.json();
-        if (json.error && !json.data?.length) setError(json.error);
-        const data: Row[] = json.data ?? [];
-        setHasMore(Boolean(json.hasMore));
-        setPage(nextPage);
-        setRows((prev) => (append ? [...prev, ...data] : data));
-      } catch {
-        setError("No se pudo cargar el catálogo");
-      } finally {
-        setLoading(false);
+  const coloresU = useMemo(() => {
+    const s = new Set<string>();
+    demoProducts.forEach((p) => {
+      if (p.color) s.add(p.color);
+    });
+    return ["Todos", ...Array.from(s).sort((a, b) => a.localeCompare(b, "es"))];
+  }, []);
+
+  const filtered = useMemo(() => {
+    const ql = q.trim().toLowerCase();
+    return demoProducts.filter((p) => {
+      if (categoria !== "Todas" && p.categoria !== categoria) return false;
+      if (soloOfertas && (!p.descuentoPct || p.descuentoPct < 25)) return false;
+      const pr = Number(p.precio);
+      if (pr < minPrecio || pr > maxPrecio) return false;
+      if (talle !== "Todos") {
+        if (!p.talle) return false;
+        const parts = p.talle
+          .split(/[,\s]+/)
+          .map((x) => x.trim().toUpperCase())
+          .filter(Boolean);
+        const want = talle.toUpperCase();
+        if (!parts.includes(want) && p.talle.toUpperCase() !== want) return false;
       }
-    },
-    [queryString],
-  );
-
-  useEffect(() => {
-    setPage(0);
-    setHasMore(true);
-    void load(0, false);
-  }, [load, queryString]);
-
-  useEffect(() => {
-    const el = sentinel.current;
-    if (!el || !hasMore || loading) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) void load(page + 1, true);
-      },
-      { rootMargin: "200px" },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [hasMore, load, loading, page]);
+      if (color !== "Todos" && p.color !== color) return false;
+      if (
+        ql &&
+        !`${p.nombre} ${p.descripcion} ${p.marca ?? ""} ${p.categoria ?? ""}`.toLowerCase().includes(ql)
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [q, categoria, soloOfertas, minPrecio, maxPrecio, talle, color]);
 
   return (
-    <div>
-      {error && (
-        <p className="mb-4 rounded-lg border border-amber-900/60 bg-amber-950/40 px-3 py-2 text-sm text-amber-200">
-          {error} — Revisá que Supabase tenga las tablas (ver <code className="text-xs">supabase/schema.sql</code>).
-        </p>
-      )}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {rows.map((p) => (
+    <section className="container-shell space-y-6">
+      <div className="rounded-2xl border border-zinc-800 bg-[#111111] p-4 md:p-5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-orange-400">Filtros en vivo</p>
+        <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <label className="block text-sm text-zinc-300">
+            Buscar
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Nombre, marca, categoría…"
+              className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-3 py-2 text-white"
+            />
+          </label>
+          <label className="block text-sm text-zinc-300">
+            Categoría
+            <select
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-3 py-2 text-white"
+            >
+              {CATS.map((c) => (
+                <option key={c} value={c === "Todas" ? "Todas" : c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-zinc-300">
+            <input type="checkbox" checked={soloOfertas} onChange={(e) => setSoloOfertas(e.target.checked)} className="rounded" />
+            Solo ofertas fuertes (≥25% off)
+          </label>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div>
+            <p className="text-sm text-zinc-400">
+              Rango de precio: ${minPrecio.toLocaleString("es-AR")} — ${maxPrecio.toLocaleString("es-AR")}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <input
+                type="range"
+                min={0}
+                max={MAX_P}
+                step={1000}
+                value={minPrecio}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setMinPrecio(Math.min(v, maxPrecio));
+                }}
+                className="min-w-[120px] flex-1"
+              />
+              <input
+                type="range"
+                min={0}
+                max={MAX_P}
+                step={1000}
+                value={maxPrecio}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setMaxPrecio(Math.max(v, minPrecio));
+                }}
+                className="min-w-[120px] flex-1"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="text-sm text-zinc-300">
+              Talle
+              <select value={talle} onChange={(e) => setTalle(e.target.value)} className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-2 py-2 text-white text-sm">
+                {TALLES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm text-zinc-300">
+              Color
+              <select value={color} onChange={(e) => setColor(e.target.value)} className="mt-1 w-full rounded-xl border border-zinc-600 bg-[#0a0a0a] px-2 py-2 text-white text-sm">
+                {coloresU.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-2 flex items-end justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-400">Catálogo</p>
+          <h2 className="text-3xl font-black text-white">Productos</h2>
+          <p className="text-sm text-zinc-500">{filtered.length} resultados</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {filtered.map((p) => (
           <ProductCard key={p.id} producto={p} />
         ))}
       </div>
-      {!rows.length && !loading && (
-        <p className="py-12 text-center text-sm text-zinc-500">No hay productos con estos filtros.</p>
-      )}
-      <div ref={sentinel} className="h-8" />
-      {loading && <p className="py-4 text-center text-sm text-zinc-500">Cargando…</p>}
-    </div>
+      {!filtered.length && <p className="mt-4 text-center text-sm text-zinc-400">No encontramos productos con esos filtros.</p>}
+    </section>
   );
 }

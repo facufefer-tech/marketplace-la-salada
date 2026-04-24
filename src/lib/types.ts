@@ -1,5 +1,12 @@
 export type Plan = "free" | "premium";
 
+export type EnvioMetodos = {
+  retiro: boolean;
+  correo: boolean;
+  oca: boolean;
+  andreani: boolean;
+};
+
 export type Tienda = {
   id: string;
   owner_id: string | null;
@@ -8,6 +15,10 @@ export type Tienda = {
   descripcion: string | null;
   logo_url: string | null;
   banner_url: string | null;
+  whatsapp: string | null;
+  instagram: string | null;
+  direccion: string | null;
+  envio_metodos?: EnvioMetodos | null;
   activa: boolean;
   plan: Plan;
   comision_pct: number;
@@ -22,6 +33,7 @@ export type Producto = {
   marca?: string | null;
   descripcion: string | null;
   precio: number;
+  precio_lista?: number | null;
   categoria: string | null;
   talle: string | null;
   color: string | null;
@@ -30,7 +42,7 @@ export type Producto = {
   activo: boolean;
   destacado: boolean;
   created_at: string;
-  tiendas?: Pick<Tienda, "slug" | "nombre" | "logo_url"> | null;
+  tiendas?: Pick<Tienda, "slug" | "nombre" | "logo_url" | "whatsapp" | "direccion" | "envio_metodos"> | null;
 };
 
 export type PedidoItem = {

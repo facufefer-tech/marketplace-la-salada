@@ -5,20 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-function slugifyTienda(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "")
-    .slice(0, 60);
-}
-
 export function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const nextRaw = searchParams.get("next");
+  const next = nextRaw && nextRaw.startsWith("/") && !nextRaw.startsWith("//") ? nextRaw : "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nombreTienda, setNombreTienda] = useState("");
@@ -49,37 +40,24 @@ export function AuthForm() {
         return;
       }
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        setMsg(error.message);
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, nombreTienda: nombre }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setMsg(json.error ?? "No se pudo registrar");
         return;
       }
 
-      if (data.session) {
-        const base = slugifyTienda(nombre) || "tienda";
-        const slug = `${base}-${Date.now().toString().slice(-6)}`;
-        const res = await fetch("/api/dashboard/tienda", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre, slug, descripcion: null }),
-        });
-        const json = (await res.json()) as { error?: string };
-        if (!res.ok) {
-          setMsg(
-            json.error
-              ? `Cuenta creada, pero no se pudo crear la tienda: ${json.error}. Podés completarla desde el panel.`
-              : "Cuenta creada. Completá tu tienda desde el panel.",
-          );
-          router.push(next);
-          router.refresh();
-          return;
-        }
-        router.push(next);
-        router.refresh();
+      const { error: errIn } = await supabase.auth.signInWithPassword({ email, password });
+      if (errIn) {
+        setMsg("Cuenta creada. Iniciá sesión manualmente: " + errIn.message);
         return;
       }
-
-      setMsg("Revisá tu correo para confirmar la cuenta. Cuando entres, vas a poder usar el nombre de tienda en el panel si no se creó automáticamente.");
+      router.push(next);
+      router.refresh();
     } finally {
       setLoading(false);
     }
@@ -88,7 +66,7 @@ export function AuthForm() {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-10">
       <h1 className="text-2xl font-bold text-white">{mode === "login" ? "Ingresá" : "Creá tu cuenta"}</h1>
-      <p className="mt-2 text-sm text-zinc-500">Feriantes: después podés completar tu tienda en el panel.</p>
+      <p className="mt-2 text-sm text-zinc-500">Registro con tienda incluida. Luego accedé al panel.</p>
 
       <form onSubmit={submit} className="mt-8 space-y-4">
         <label className="block text-sm text-zinc-400">
@@ -131,7 +109,7 @@ export function AuthForm() {
           disabled={loading}
           className="w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-black hover:bg-orange-400 disabled:opacity-50"
         >
-          {loading ? "…" : mode === "login" ? "Entrar" : "Registrarme"}
+          {loading ? "…" : mode === "login" ? "Entrar" : "Registrarme y crear tienda"}
         </button>
       </form>
 

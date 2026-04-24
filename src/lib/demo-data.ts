@@ -123,6 +123,10 @@ const catalogItems: Array<{ nombre: string; categoria: keyof typeof photoByCateg
   { nombre: "Remera outlet 2x1", categoria: "Remeras" },
 ];
 
+export function getDemoStoreBySlug(slug: string) {
+  return demoStores.find((s) => s.slug === slug);
+}
+
 export const demoProducts: DemoProduct[] = catalogItems.map((item, i) => {
   const store = demoStores[i % demoStores.length];
   const price = 9000 + ((i * 1900) % 76000);
@@ -130,6 +134,14 @@ export const demoProducts: DemoProduct[] = catalogItems.map((item, i) => {
   const original = Math.round((price * (100 / (100 - descuentoPct))) / 100) * 100;
   const categoryPhotos = photoByCategory[item.categoria];
   const photo = categoryPhotos[i % categoryPhotos.length];
+  const photo2 = categoryPhotos[(i + 1) % categoryPhotos.length];
+  const wa = `+549115555${String(1000 + (i % 9000)).slice(-4)}`;
+  const envio_metodos = {
+    retiro: true,
+    correo: i % 3 !== 0,
+    oca: i % 2 === 0,
+    andreani: i % 4 === 0,
+  };
   return {
     id: `demo-${i + 1}`,
     tienda_id: store.id,
@@ -137,15 +149,23 @@ export const demoProducts: DemoProduct[] = catalogItems.map((item, i) => {
     marca: store.nombre,
     descripcion: `${item.nombre} con moldería argentina, tela seleccionada y terminaciones reforzadas. Ideal para venta minorista y mayorista con alta rotación.`,
     precio: price,
+    precio_lista: original,
     categoria: item.categoria,
     talle: talles[i % talles.length],
     color: colores[i % colores.length],
     stock: 5 + (i % 25),
-    fotos: [photo],
+    fotos: [photo, photo2],
     activo: true,
     destacado: i % 7 === 0,
     created_at: new Date(Date.now() - i * 3600 * 1000).toISOString(),
-    tiendas: { slug: store.slug, nombre: store.nombre, logo_url: null },
+    tiendas: {
+      slug: store.slug,
+      nombre: store.nombre,
+      logo_url: null,
+      whatsapp: wa,
+      direccion: "La Salada — Colectora Oeste (demo)",
+      envio_metodos,
+    },
     precioOriginal: original,
     descuentoPct,
     nuevo: i % 6 === 0,

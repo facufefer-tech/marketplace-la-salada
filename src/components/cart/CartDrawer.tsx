@@ -7,6 +7,13 @@ import { useCartStore } from "@/store/useCartStore";
 
 type Props = { open: boolean; onClose: () => void };
 
+function itemTitle(nombre: string, talle: string, color: string) {
+  const parts = [nombre];
+  if (talle && talle !== "Único") parts.push(`Talle ${talle}`);
+  if (color && color !== "Único") parts.push(color);
+  return parts.join(" · ");
+}
+
 export function CartDrawer({ open, onClose }: Props) {
   const { lines, remove, setQty, clear, total } = useCartStore();
   const [email, setEmail] = useState("");
@@ -30,7 +37,7 @@ export function CartDrawer({ open, onClose }: Props) {
           comprador_email: email || undefined,
           items: lines.map((l) => ({
             producto_id: l.producto.id,
-            nombre: l.producto.nombre,
+            nombre: itemTitle(l.producto.nombre, l.talle, l.color),
             cantidad: l.cantidad,
             precio_unit: l.producto.precio,
             tienda_id: l.producto.tienda_id,
@@ -54,24 +61,28 @@ export function CartDrawer({ open, onClose }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60" role="dialog" aria-modal>
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/70" role="dialog" aria-modal>
       <button type="button" className="h-full flex-1 cursor-default" aria-label="Cerrar" onClick={onClose} />
-      <div className="h-full w-full max-w-md overflow-y-auto border-l border-zinc-200 bg-white p-4 shadow-xl">
+      <div className="h-full w-full max-w-md overflow-y-auto border-l border-zinc-800 bg-[#111] p-4 text-zinc-100 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">Carrito</h2>
-          <button type="button" onClick={onClose} className="text-zinc-500 hover:text-zinc-900">
+          <h2 className="text-lg font-bold text-white">Carrito</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg px-2 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+          >
             Cerrar
           </button>
         </div>
         {!lines.length ? (
-          <p className="text-sm text-zinc-600">Todavía no agregaste productos.</p>
+          <p className="text-sm text-zinc-500">Todavía no agregaste productos.</p>
         ) : (
           <ul className="space-y-4">
-            {lines.map(({ producto, cantidad }) => {
-              const img = producto.fotos?.[0];
+            {lines.map((line) => {
+              const img = line.producto.fotos?.[0];
               return (
-                <li key={producto.id} className="flex gap-3 border-b border-zinc-200 pb-4">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
+                <li key={line.lineId} className="flex gap-3 border-b border-zinc-800 pb-4">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-900">
                     {img ? (
                       <Image src={img} alt="" fill className="object-cover" sizes="64px" />
                     ) : (
@@ -79,36 +90,43 @@ export function CartDrawer({ open, onClose }: Props) {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-zinc-900">{producto.nombre}</p>
-                    {producto.tiendas?.slug && (
+                    <p className="truncate text-sm font-medium text-zinc-100">{line.producto.nombre}</p>
+                    {(line.talle !== "Único" || line.color !== "Único") && (
+                      <p className="text-xs text-zinc-500">
+                        {line.talle !== "Único" && <span>Talle {line.talle}</span>}
+                        {line.talle !== "Único" && line.color !== "Único" && " · "}
+                        {line.color !== "Único" && <span>{line.color}</span>}
+                      </p>
+                    )}
+                    {line.producto.tiendas?.slug && (
                       <Link
-                        href={`/${producto.tiendas.slug}`}
-                        className="text-xs text-accent hover:underline"
+                        href={`/${line.producto.tiendas.slug}`}
+                        className="text-xs text-orange-400 hover:underline"
                         onClick={onClose}
                       >
-                        {producto.tiendas.nombre}
+                        {line.producto.tiendas.nombre}
                       </Link>
                     )}
                     <div className="mt-2 flex items-center gap-2">
                       <input
                         type="number"
                         min={1}
-                        max={producto.stock}
-                        value={cantidad}
-                        onChange={(e) => setQty(producto.id, parseInt(e.target.value, 10) || 1)}
-                        className="w-16 rounded border border-zinc-300 bg-white px-2 py-1 text-sm"
+                        max={line.producto.stock}
+                        value={line.cantidad}
+                        onChange={(e) => setQty(line.lineId, parseInt(e.target.value, 10) || 1)}
+                        className="w-16 rounded border border-zinc-700 bg-black px-2 py-1 text-sm text-white"
                       />
                       <button
                         type="button"
-                        onClick={() => remove(producto.id)}
-                        className="text-xs text-red-400 hover:underline"
+                        onClick={() => remove(line.lineId)}
+                        className="text-xs text-rose-400 hover:underline"
                       >
                         Quitar
                       </button>
                     </div>
                   </div>
-                  <div className="text-sm font-medium text-zinc-900">
-                    ${(Number(producto.precio) * cantidad).toLocaleString("es-AR")}
+                  <div className="shrink-0 text-sm font-semibold text-zinc-100">
+                    ${(Number(line.producto.precio) * line.cantidad).toLocaleString("es-AR")}
                   </div>
                 </li>
               );
@@ -117,36 +135,41 @@ export function CartDrawer({ open, onClose }: Props) {
         )}
 
         {lines.length > 0 && (
-          <div className="mt-6 space-y-3 border-t border-zinc-200 pt-4">
-            <label className="block text-xs text-zinc-600">
+          <div className="mt-6 space-y-3 border-t border-zinc-800 pt-4">
+            <Link
+              href="/carrito"
+              onClick={onClose}
+              className="mb-2 block w-full rounded-xl border border-orange-500/50 py-2.5 text-center text-sm font-bold text-orange-400 hover:bg-zinc-900"
+            >
+              Ir al carrito completo
+            </Link>
+            <label className="block text-xs text-zinc-500">
               Email (opcional, para el comprobante)
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+                className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white"
               />
             </label>
-            <p className="text-sm text-zinc-700">
-              Total: <span className="font-semibold text-zinc-900">${total().toLocaleString("es-AR")}</span>
+            <p className="text-sm text-zinc-300">
+              Total: <span className="font-bold text-white">${total().toLocaleString("es-AR")}</span>
             </p>
-            <p className="text-xs text-zinc-500">
-              Comisión marketplace ~5% (split Mercado Pago). Una tienda por compra.
-            </p>
-            {err && <p className="text-sm text-red-400">{err}</p>}
-            <div className="flex gap-2">
+            <p className="text-xs text-zinc-500">Comisión marketplace ~5% (split Mercado Pago). Una tienda por compra.</p>
+            {err && <p className="text-sm text-rose-400">{err}</p>}
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={checkout}
                 disabled={loading}
-                className="flex-1 rounded-lg bg-accent py-2.5 text-sm font-semibold text-black hover:bg-orange-400 disabled:opacity-50"
+                className="min-w-0 flex-1 rounded-lg bg-orange-500 py-2.5 text-sm font-bold text-black hover:bg-orange-400 disabled:opacity-50"
               >
                 {loading ? "Procesando…" : "Pagar con Mercado Pago"}
               </button>
               <button
                 type="button"
                 onClick={() => clear()}
-                className="rounded-lg border border-zinc-700 px-3 text-sm text-zinc-400 hover:bg-zinc-900"
+                className="rounded-lg border border-zinc-600 px-3 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800"
               >
                 Vaciar
               </button>

@@ -1,5 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseRouteClient } from "@/lib/supabase/route";
+import type { EnvioMetodos } from "@/lib/types";
+
+function normalizeSlug(input: string) {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function parseEnvioMetodos(v: unknown): EnvioMetodos {
+  if (!v || typeof v !== "object") {
+    return { retiro: true, correo: false, oca: false, andreani: false };
+  }
+  const o = v as Record<string, boolean>;
+  return {
+    retiro: Boolean(o.retiro),
+    correo: Boolean(o.correo),
+    oca: Boolean(o.oca),
+    andreani: Boolean(o.andreani),
+  };
+}
 
 export async function GET() {
   const supabase = createSupabaseRouteClient();
@@ -27,28 +49,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const slug = String(body.slug ?? "")
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+  const slug = normalizeSlug(String(body.slug ?? ""));
 
   if (!slug || !body.nombre) {
     return NextResponse.json({ error: "slug y nombre son obligatorios" }, { status: 400 });
   }
 
+  const payload = {
+    nombre: String(body.nombre),
+    slug,
+    descripcion: (body.descripcion as string) ?? null,
+    logo_url: (body.logo_url as string) ?? null,
+    banner_url: (body.banner_url as string) ?? null,
+    whatsapp: (body.whatsapp as string) ?? null,
+    instagram: (body.instagram as string) ?? null,
+    direccion: (body.direccion as string) ?? null,
+    envio_metodos: parseEnvioMetodos(body.envio_metodos),
+    activa: body.activa !== false,
+  };
+
   const { data: existing } = await supabase.from("tiendas").select("id").eq("owner_id", user.id).maybeSingle();
   if (existing?.id) {
     const { data, error } = await supabase
       .from("tiendas")
-      .update({
-        nombre: body.nombre,
-        slug,
-        descripcion: body.descripcion ?? null,
-        logo_url: body.logo_url ?? null,
-        banner_url: body.banner_url ?? null,
-        activa: body.activa ?? true,
-      })
+      .update(payload)
       .eq("id", existing.id)
       .select()
       .single();
@@ -60,12 +84,7 @@ export async function POST(req: NextRequest) {
     .from("tiendas")
     .insert({
       owner_id: user.id,
-      slug,
-      nombre: body.nombre,
-      descripcion: body.descripcion ?? null,
-      logo_url: body.logo_url ?? null,
-      banner_url: body.banner_url ?? null,
-      activa: true,
+      ...payload,
       plan: "free",
       comision_pct: 5,
     })
@@ -74,4 +93,8 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
+}
+
+export async function PUT(req: NextRequest) {
+  return POST(req);
 }

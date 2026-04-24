@@ -76,10 +76,22 @@ export function Header() {
               Privacidad
             </Link>
             <Link
-              href="/feriantes"
+              href="/para-feriantes"
               className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
             >
-              Feriantes
+              Para feriantes
+            </Link>
+            <Link
+              href="/envios"
+              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            >
+              Envíos
+            </Link>
+            <Link
+              href="/carrito"
+              className="rounded-lg px-2 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            >
+              Carrito
             </Link>
             <Link
               href="/auth"
